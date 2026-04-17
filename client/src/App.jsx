@@ -1,6 +1,7 @@
 import React from "react";
 import TransactionForm from "./components/TransactionForm.jsx";
 import TransactionList from "./features/transactions/TransactionList.jsx";
+import Footer from "./components/Footer.jsx";
 
 function App() {
   return (
@@ -42,6 +43,7 @@ function App() {
 
         </div>
       </main>
+      <Footer />
     </div>
   );
 }

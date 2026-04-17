@@ -39,6 +39,7 @@ export default function TransactionForm() {
 
   return (
     <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+      
       {/* Description */}
       <div>
         <label htmlFor="description" style={labelStyle}>Description</label>
@@ -54,14 +55,20 @@ export default function TransactionForm() {
         />
       </div>
 
-      {/* Income & Outgoing side by side */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+      {/* ✅ ONLY CHANGE HERE */}
+      <div className="form-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+        
         <div>
           <label htmlFor="income" style={labelStyle}>Income 💰</label>
           <div style={{ position: "relative" }}>
             <span style={{
-              position: "absolute", left: "12px", top: "50%",
-              transform: "translateY(-50%)", color: "#34d399", fontWeight: 700, fontSize: "0.85rem"
+              position: "absolute",
+              left: "12px",
+              top: "50%",
+              transform: "translateY(-50%)",
+              color: "#34d399",
+              fontWeight: 700,
+              fontSize: "0.85rem"
             }}>₹</span>
             <input
               id="income"
@@ -82,8 +89,13 @@ export default function TransactionForm() {
           <label htmlFor="outgoing" style={labelStyle}>Expense 💸</label>
           <div style={{ position: "relative" }}>
             <span style={{
-              position: "absolute", left: "12px", top: "50%",
-              transform: "translateY(-50%)", color: "#fb7185", fontWeight: 700, fontSize: "0.85rem"
+              position: "absolute",
+              left: "12px",
+              top: "50%",
+              transform: "translateY(-50%)",
+              color: "#fb7185",
+              fontWeight: 700,
+              fontSize: "0.85rem"
             }}>₹</span>
             <input
               id="outgoing"
@@ -99,6 +111,7 @@ export default function TransactionForm() {
             />
           </div>
         </div>
+
       </div>
 
       {/* Submit */}
@@ -120,12 +133,13 @@ export default function TransactionForm() {
         <p style={{ fontSize: "0.72rem", fontWeight: 700, color: "#818cf8", marginBottom: "6px" }}>
           💡 Quick Tips
         </p>
-        <ul style={{ fontSize: "0.72rem", color: "#64748b", lineHeight: 1.6 }}>
-          <li>• Enter income and expenses separately</li>
-          <li>• Use descriptive names for easier tracking</li>
-          <li>• Keep transactions up to date</li>
+        <ul style={{ fontSize: "0.72rem", color: "#64748b", lineHeight: 1.6, paddingLeft:"5%" }}>
+          <li>Enter income and expenses separately</li>
+          <li>Use descriptive names for easier tracking</li>
+          <li>Keep transactions up to date</li>
         </ul>
       </div>
+
     </form>
   );
 }

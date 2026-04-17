@@ -17,7 +17,6 @@ export default function TransactionList() {
     dispatch(fetchTransactions());
   }, [dispatch]);
 
-  // Sort by sno ascending
   const sortedList = [...list]
     .sort((a, b) => (a.sno ?? Infinity) - (b.sno ?? Infinity))
     .map((item, index) => ({
@@ -29,7 +28,6 @@ export default function TransactionList() {
   const totalExpense = sortedList.reduce((s, t) => s + t.outgoing, 0);
   const netBalance = totalIncome - totalExpense;
 
-  // ── Empty State ──────────────────────────────────────────────────────────────
   if (sortedList.length === 0) {
     return (
       <div className="empty-state">
@@ -51,8 +49,8 @@ export default function TransactionList() {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
 
-      {/* ── Summary Cards ──────────────────────────────────────────────────────── */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "12px" }}>
+      {/* ✅ ONLY CHANGE HERE */}
+      <div className="summary-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "12px" }}>
 
         <div className="stat-card stat-card-income">
           <p style={{ fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "#6ee7b7", marginBottom: "6px" }}>
@@ -87,17 +85,17 @@ export default function TransactionList() {
 
       </div>
 
-      {/* ── Table ──────────────────────────────────────────────────────────────── */}
+      {/* TABLE */}
       <div style={{ overflowX: "auto", borderRadius: "14px", border: "1px solid rgba(255,255,255,0.06)" }}>
         <table className="et-table">
           <thead>
             <tr>
-              <th style={{ textAlign: "center", width: "60px" }}>#</th>
-              <th style={{ textAlign: "left" }}>Description</th>
+              <th>#</th>
+              <th>Description</th>
               <th style={{ textAlign: "right" }}>Income</th>
               <th style={{ textAlign: "right" }}>Expense</th>
               <th style={{ textAlign: "right" }}>Balance</th>
-              <th style={{ textAlign: "center", width: "60px" }}>Del</th>
+              <th>Del</th>
             </tr>
           </thead>
           <tbody>
@@ -107,64 +105,25 @@ export default function TransactionList() {
                 running += tx.income - tx.outgoing;
                 return (
                   <tr key={tx._id}>
-                    {/* S.No */}
-                    <td style={{ textAlign: "center" }}>
-                      <span className="sno-badge">{tx.sno ?? "—"}</span>
+                    <td><span className="sno-badge">{tx.sno}</span></td>
+                    <td>{tx.description}</td>
+
+                    <td style={{ textAlign: "right" }}>
+                      {tx.income > 0 ? `+${formatCurrency(tx.income)}` : "—"}
                     </td>
 
-                    {/* Description */}
+                    <td style={{ textAlign: "right" }}>
+                      {tx.outgoing > 0 ? `-${formatCurrency(tx.outgoing)}` : "—"}
+                    </td>
+
+                    <td style={{ textAlign: "right" }}>
+                      {formatCurrency(running)}
+                    </td>
+
                     <td>
-                      <span
-                        title={tx.description}
-                        style={{
-                          display: "block",
-                          maxWidth: "180px",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          whiteSpace: "nowrap",
-                          color: "#e2e8f0",
-                          fontWeight: 500,
-                        }}
-                      >
-                        {tx.description}
-                      </span>
-                    </td>
-
-                    {/* Income */}
-                    <td style={{ textAlign: "right" }}>
-                      {tx.income > 0 ? (
-                        <span style={{ color: "#34d399", fontWeight: 600 }}>
-                          +{formatCurrency(tx.income)}
-                        </span>
-                      ) : (
-                        <span style={{ color: "#334155" }}>—</span>
-                      )}
-                    </td>
-
-                    {/* Expense */}
-                    <td style={{ textAlign: "right" }}>
-                      {tx.outgoing > 0 ? (
-                        <span style={{ color: "#fb7185", fontWeight: 600 }}>
-                          -{formatCurrency(tx.outgoing)}
-                        </span>
-                      ) : (
-                        <span style={{ color: "#334155" }}>—</span>
-                      )}
-                    </td>
-
-                    {/* Running Balance */}
-                    <td style={{ textAlign: "right" }}>
-                      <span style={{ fontWeight: 700, color: running >= 0 ? "#818cf8" : "#f43f5e" }}>
-                        {formatCurrency(running)}
-                      </span>
-                    </td>
-
-                    {/* Delete */}
-                    <td style={{ textAlign: "center" }}>
                       <button
                         className="et-delete-btn"
                         onClick={() => dispatch(deleteTransaction(tx._id))}
-                        title="Delete"
                       >
                         ✕
                       </button>
