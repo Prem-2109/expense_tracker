@@ -1,12 +1,1 @@
-  {
-    "rewrites": [
-      {
-        "source": "/api/(.*)",
-        "destination": "https://authenserver.vercel.app/api/$1"
-      },
-      {
-        "source": "/(.*)",
-        "destination": "/"
-      }
-    ]
-  }
+{}

@@ -1,16 +1,15 @@
-# ✅ Revert Complete
+# Vercel Deployment Steps
 
-All previous responsiveness changes reverted successfully.
+## Local Development (already works)
+- Client: `cd client && npm run dev` (http://localhost:5173)
+- Server: `cd server && npm run dev` (http://localhost:5000)
+- Full local: Update client axios to `http://localhost:5000/api`
 
-**Changes made:**
-- Removed custom spacing from tailwind.config.js
-- Simplified App.jsx, TransactionForm.jsx, TransactionList.jsx to base Tailwind styles (no sm: variants)
-- Uncommented date input in form
-- Fixed ESLint issues
-- Updated/Cleared TODO files
-- Backups saved in `./backups/`
+## Production (Vercel)
+1. Install Vercel CLI: `npm i -g vercel`
+2. `vercel login`
+3. Copy `.env.example` to `.env.local`, set MONGO_URI (Atlas)
+4. `vercel` (from root) - follow prompts, add MONGO_URI env var
+5. `vercel --prod` for production
 
-**Run:** `cd client && npm run dev` to test the restored version.
-
-**Status:** Ready for use with original base styling.
-
+Test: Frontend loads, API calls to /api/transactions work (proxied to serverless).
