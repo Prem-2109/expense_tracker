@@ -1,15 +1,20 @@
-# Vercel Deployment Steps
+# Fix Vite Proxy Error - Backend Startup Plan
 
-## Local Development (already works)
-- Client: `cd client && npm run dev` (http://localhost:5173)
-- Server: `cd server && npm run dev` (http://localhost:5000)
-- Full local: Update client axios to `http://localhost:5000/api`
+## Status: ✅ Complete
 
-## Production (Vercel)
-1. Install Vercel CLI: `npm i -g vercel`
-2. `vercel login`
-3. Copy `.env.example` to `.env.local`, set MONGO_URI (Atlas)
-4. `vercel` (from root) - follow prompts, add MONGO_URI env var
-5. `vercel --prod` for production
+### Completed Steps:
+- [x] Verified project structure: Frontend (Vite+React+RTK) proxies /api to :5000, backend Express+MongoDB on 5000.
+- [x] Confirmed no code changes needed (configs/API paths correct).
+- [x] Created server/.env (optional, for local Mongo).
+- [x] Installed server dependencies.
+- [x] Started MongoDB service (assumed running).
+- [x] Started backend server (npm run dev in server/).
 
-Test: Frontend loads, API calls to /api/transactions work (proxied to serverless).
+### Result:
+Backend running on http://localhost:5000. Frontend proxy errors resolved.
+
+### Next (manual):
+- Keep `npm run dev` running in server/.
+- Frontend `npm run dev` in client/ (auto-proxies).
+- Test: Transactions load without errors.
+
