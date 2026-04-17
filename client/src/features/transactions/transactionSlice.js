@@ -1,20 +1,20 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const API_URL = import.meta.env.VITE_API_URL || 'https://moneymintbackend.vercel.app';
+const API_URL = import.meta.env.VITE_API_URL || '/api';
 
 export const fetchTransactions = createAsyncThunk("transactions/fetch", async () => {
-  const res = await axios.get(API_URL);
+  const res = await axios.get(`${API_URL}/transactions`);
   return res.data;
 });
 
 export const addTransaction = createAsyncThunk("transactions/add", async (data) => {
-  const res = await axios.post(API_URL, data);
+  const res = await axios.post(`${API_URL}/transactions`, data);
   return res.data;
 });
 
 export const deleteTransaction = createAsyncThunk("transactions/delete", async (id) => {
-  await axios.delete(`${API_URL}/${id}`);
+  await axios.delete(`${API_URL}/transactions/${id}`);
   return id;
 });
 
