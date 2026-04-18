@@ -90,7 +90,7 @@ export default function TransactionList() {
         <table className="et-table">
           <thead>
             <tr>
-              <th>#</th>
+              <th>S.no</th>
               <th>Description</th>
               <th style={{ textAlign: "right" }}>Income</th>
               <th style={{ textAlign: "right" }}>Expense</th>
@@ -108,15 +108,15 @@ export default function TransactionList() {
                     <td><span className="sno-badge">{tx.sno}</span></td>
                     <td>{tx.description}</td>
 
-                    <td style={{ textAlign: "right" }}>
+                    <td style={{ textAlign: "center" }}>
                       {tx.income > 0 ? `+${formatCurrency(tx.income)}` : "—"}
                     </td>
 
-                    <td style={{ textAlign: "right" }}>
+                    <td style={{ textAlign: "center" }}>
                       {tx.outgoing > 0 ? `-${formatCurrency(tx.outgoing)}` : "—"}
                     </td>
 
-                    <td style={{ textAlign: "right" }}>
+                    <td style={{ textAlign: "center" }}>
                       {formatCurrency(running)}
                     </td>
 
