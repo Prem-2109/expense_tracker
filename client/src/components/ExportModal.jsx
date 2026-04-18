@@ -2,19 +2,19 @@ import React from "react";
 
 export default function ExportModal({ onClose, data }) {
 
-  // 🔹 Prepare Clean Data + Balance
+  // 🔹 Prepare Clean Data + Balance (FIXED)
   const prepareData = () => {
     let running = 0;
 
     return data.map((t, i) => {
-      const income = t.income || 0;
-      const expense = t.outgoing || 0;
+      const income = Number(t.income) || 0;
+      const expense = Number(t.outgoing) || 0;
 
       running += income - expense;
 
       return {
         sno: i + 1,
-        description: t.description,
+        description: (t.description || "").trim(),
         income,
         expense,
         balance: running,
@@ -35,7 +35,7 @@ export default function ExportModal({ onClose, data }) {
     XLSX.writeFile(wb, "transactions.xlsx");
   };
 
-  // 🔹 PDF Export (FIXED)
+  // 🔹 PDF Export (FULL UI STYLE)
   const exportPDF = async () => {
     const { default: jsPDF } = await import("jspdf");
     const autoTable = (await import("jspdf-autotable")).default;
@@ -44,31 +44,147 @@ export default function ExportModal({ onClose, data }) {
 
     const cleanData = prepareData();
 
+    // ✅ Safe Currency Formatter
+    const formatCurrency = (val) => {
+      const num = Number(val) || 0;
+      return "Rs. " + num.toLocaleString("en-IN", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      });
+    };
+
+    // ─────────────────────────────
+    // 🎯 TOTALS
+    // ─────────────────────────────
+    const totals = cleanData.reduce(
+      (acc, t) => {
+        acc.income += t.income;
+        acc.expense += t.expense;
+        acc.balance = t.balance;
+        return acc;
+      },
+      { income: 0, expense: 0, balance: 0 }
+    );
+
+    // ─────────────────────────────
+    // 🎨 HEADER
+    // ─────────────────────────────
+    doc.setFillColor(99, 102, 241);
+    doc.rect(0, 0, 210, 30, "F");
+
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(16);
+    doc.text("Expense Tracker Report", 14, 18);
+
+    doc.setFontSize(9);
+    doc.text(
+      `Generated on: ${new Date().toLocaleDateString()}`,
+      14,
+      25
+    );
+
+    doc.setTextColor(0, 0, 0);
+
+    // ─────────────────────────────
+    // 💳 CARD UI
+    // ─────────────────────────────
+    const drawCard = (x, y, title, value, color) => {
+      doc.setFillColor(...color);
+      doc.roundedRect(x, y, 58, 28, 4, 4, "F");
+
+      doc.setTextColor(255, 255, 255);
+
+      doc.setFontSize(9);
+      doc.text(title, x + 4, y + 9);
+
+      doc.setFontSize(11);
+      doc.text(value, x + 4, y + 20);
+
+      doc.setTextColor(0, 0, 0);
+    };
+
+    // ✅ Perfect alignment
+    const cardWidth = 58;
+    const gap = 6;
+    const startX = 14;
+
+    drawCard(startX, 40, "Total Income", formatCurrency(totals.income), [34, 197, 94]);
+    drawCard(startX + cardWidth + gap, 40, "Total Expense", formatCurrency(totals.expense), [239, 68, 68]);
+    drawCard(startX + (cardWidth + gap) * 2, 40, "Balance", formatCurrency(totals.balance), [59, 130, 246]);
+
+    // ─────────────────────────────
+    // 📋 TABLE DATA
+    // ─────────────────────────────
     const rows = cleanData.map((t) => [
       t.sno,
-      t.description,
-      `₹${t.income}`,
-      `₹${t.expense}`,
-      `₹${t.balance}`,
+      t.description || "-",
+      t.income > 0 ? formatCurrency(t.income) : "-",
+      t.expense > 0 ? formatCurrency(t.expense) : "-",
+      formatCurrency(t.balance),
     ]);
 
-    // Title
-    doc.setFontSize(14);
-    doc.text("Expense Tracker Report", 14, 15);
-
-    // Table
+    // ─────────────────────────────
+    // 📊 TABLE (COMPACT + CLEAN)
+    // ─────────────────────────────
     autoTable(doc, {
-      startY: 20,
+      startY: 78,
+
       head: [["#", "Description", "Income", "Expense", "Balance"]],
       body: rows,
+
       theme: "grid",
+
       styles: {
         fontSize: 9,
+        cellPadding: 2.5,
+        valign: "middle",
+        overflow: "linebreak",
       },
+
       headStyles: {
-        fillColor: [99, 102, 241], // Indigo
+        fillColor: [99, 102, 241],
+        textColor: 255,
+        fontSize: 10,
+        halign: "center",
       },
+
+      columnStyles: {
+        0: { cellWidth: 10, halign: "center" },
+        1: { cellWidth: 70 },
+        2: { cellWidth: 30, halign: "right" },
+        3: { cellWidth: 30, halign: "right" },
+        4: { cellWidth: 30, halign: "right" },
+      },
+
+      alternateRowStyles: {
+        fillColor: [245, 247, 255],
+      },
+
+      didParseCell: function (data) {
+        if (data.column.index === 1 && data.cell.raw) {
+          const text = String(data.cell.raw);
+          if (text.length > 35) {
+            data.cell.text = text.substring(0, 35) + "...";
+          }
+        }
+      },
+
+      margin: { left: 14, right: 14 },
     });
+
+    // ─────────────────────────────
+    // 🧾 FOOTER
+    // ─────────────────────────────
+    const pageHeight = doc.internal.pageSize.height;
+
+    doc.setFontSize(8);
+    doc.setTextColor(120);
+
+    doc.text(
+      "Generated by Expense Tracker",
+      14,
+      pageHeight - 10
+    );
 
     doc.save("transactions.pdf");
   };
