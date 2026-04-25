@@ -25,9 +25,12 @@ export default function Footer() {
 
         {/* Social */}
         <div className="footer-social">
-          <a href="#" title="LinkedIn">🔗</a>
-          <a href="#" title="GitHub">💻</a>
-          <a href="#" title="Twitter">🐦</a>
+          <a target="_blank" href="https://www.linkedin.com/in/premkumar2102/" title="LinkedIn">🔗</a>
+          <a target="_blank" href="https://github.com/Prem-2109" title="GitHub">💻</a>
+          <a target="_blank" href="https://wa.me/918122834869?text=Hi%20Prem,%20I%20checked%20your%20project!" title="WhatsApp"
+          >
+            💬
+          </a>
         </div>
 
       </div>
@@ -35,7 +38,7 @@ export default function Footer() {
       {/* Bottom */}
       <div className="footer-bottom">
         <p>
-          © {year} Expense Tracker • Constructed with ❤️ by <span>Prem</span>
+          © {new Date().getFullYear()} Expense Tracker • Built & maintained by <span>Prem</span>
         </p>
       </div>
     </footer>

@@ -23,6 +23,12 @@ mongoose.connect(process.env.MONGO_URI || "mongodb://localhost:27017/expense_tra
 const transactionRoutes = require("./routes/transactions");
 app.use("/api/transactions", transactionRoutes);
 
+const table2Routes = require("./routes/table2");
+app.use("/api/table2", table2Routes);
+
+const table3Routes = require("./routes/table3");
+app.use("/api/table3", table3Routes);
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

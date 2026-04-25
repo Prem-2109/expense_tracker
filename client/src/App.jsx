@@ -2,14 +2,44 @@ import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import TransactionForm from "./components/TransactionForm.jsx";
 import TransactionList from "./features/transactions/TransactionList.jsx";
+import TransactionForm2 from "./components/TransactionForm2.jsx";
+import TransactionList2 from "./features/transactions/TransactionList2.jsx";
+import TransactionForm3 from "./components/TransactionForm3.jsx";
+import TransactionList3 from "./features/transactions/TransactionList3.jsx";
 import Footer from "./components/Footer.jsx";
 import ExportModal from "./components/ExportModal.jsx";
 
-function App() {
-  const { list } = useSelector((state) => state.transactions);
-  const [open, setOpen] = useState(false);
+const TABS = [
+  { id: 1, label: "Dashboard 1", icon: "📊" },
+  { id: 2, label: "Dashboard 2", icon: "📈" },
+  { id: 3, label: "Dashboard 3", icon: "📉" },
+];
 
-  const hasData = list && list.length > 0;
+function App() {
+  const { list: list1 } = useSelector((state) => state.transactions);
+  const { list: list2 } = useSelector((state) => state.table2);
+  const { list: list3 } = useSelector((state) => state.table3);
+
+  const [open, setOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState(1);
+
+  // Get data for active tab
+  const activeList = activeTab === 1 ? list1 : activeTab === 2 ? list2 : list3;
+  const hasData = activeList && activeList.length > 0;
+
+  // Render form based on active tab
+  const renderForm = () => {
+    if (activeTab === 1) return <TransactionForm />;
+    if (activeTab === 2) return <TransactionForm2 />;
+    return <TransactionForm3 />;
+  };
+
+  // Render list based on active tab
+  const renderList = () => {
+    if (activeTab === 1) return <TransactionList />;
+    if (activeTab === 2) return <TransactionList2 />;
+    return <TransactionList3 />;
+  };
 
   return (
     <div className="app-shell">
@@ -29,6 +59,22 @@ function App() {
         </div>
       </header>
 
+      {/* ── Tab Navigation ───────────────────────────────── */}
+      <nav className="tab-nav">
+        <div className="tab-nav-inner">
+          {TABS.map((tab) => (
+            <button
+              key={tab.id}
+              className={`tab-btn ${activeTab === tab.id ? "tab-active" : ""}`}
+              onClick={() => setActiveTab(tab.id)}
+            >
+              <span className="tab-icon">{tab.icon}</span>
+              {tab.label}
+            </button>
+          ))}
+        </div>
+      </nav>
+
       {/* ── Main Layout ───────────────────────────────────── */}
       <main className="app-main">
         <div className="app-grid">
@@ -39,7 +85,7 @@ function App() {
               <span className="panel-title-icon">+</span>
               Add Transaction
             </h2>
-            <TransactionForm />
+            {renderForm()}
           </aside>
 
           {/* Right – History */}
@@ -66,7 +112,7 @@ function App() {
               </button>
             </div>
 
-            <TransactionList />
+            {renderList()}
           </section>
 
         </div>
@@ -74,7 +120,7 @@ function App() {
 
       {/* Popup Modal */}
       {open && (
-        <ExportModal onClose={() => setOpen(false)} data={list} />
+        <ExportModal onClose={() => setOpen(false)} data={activeList} />
       )}
 
       <Footer />
