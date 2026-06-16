@@ -92,9 +92,9 @@ export default function TransactionList3() {
             <tr>
               <th>S.no</th>
               <th>Description</th>
-              <th style={{ textAlign: "right" }}>Income</th>
-              <th style={{ textAlign: "right" }}>Expense</th>
-              <th style={{ textAlign: "right" }}>Balance</th>
+              <th style={{ textAlign: "center" }}>Income</th>
+              <th style={{ textAlign: "center" }}>Expense</th>
+              <th style={{ textAlign: "center" }}>Balance</th>
               <th>Del</th>
             </tr>
           </thead>
