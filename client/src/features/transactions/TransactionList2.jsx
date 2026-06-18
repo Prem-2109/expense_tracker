@@ -1,6 +1,6 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchTable2, deleteTable2 } from "./table2Slice.js";
+import { fetchTable2, deleteTable2, updateTable2 } from "./table2Slice.js";
 
 const formatCurrency = (amount) =>
   new Intl.NumberFormat("en-IN", {
@@ -13,9 +13,39 @@ export default function TransactionList2() {
   const dispatch = useDispatch();
   const { list } = useSelector((state) => state.table2);
 
+  const [editingId, setEditingId] = useState(null);
+  const [editForm, setEditForm] = useState({ description: "", income: "", outgoing: "" });
+
   useEffect(() => {
     dispatch(fetchTable2());
   }, [dispatch]);
+
+  const handleStartEdit = (tx) => {
+    setEditingId(tx._id);
+    setEditForm({
+      description: tx.description,
+      income: tx.income || "",
+      outgoing: tx.outgoing || "",
+    });
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+  };
+
+  const handleSaveEdit = (id) => {
+    dispatch(
+      updateTable2({
+        id,
+        data: {
+          description: editForm.description,
+          income: Number(editForm.income) || 0,
+          outgoing: Number(editForm.outgoing) || 0,
+        },
+      })
+    );
+    setEditingId(null);
+  };
 
   const sortedList = [...list]
     .sort((a, b) => (a.sno ?? Infinity) - (b.sno ?? Infinity))
@@ -95,7 +125,7 @@ export default function TransactionList2() {
               <th style={{ textAlign: "right" }}>Income</th>
               <th style={{ textAlign: "right" }}>Expense</th>
               <th style={{ textAlign: "right" }}>Balance</th>
-              <th>Del</th>
+              <th style={{ textAlign: "center" }}>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -103,17 +133,52 @@ export default function TransactionList2() {
               let running = 0;
               return sortedList.map((tx) => {
                 running += tx.income - tx.outgoing;
+                const isEditing = tx._id === editingId;
                 return (
                   <tr key={tx._id}>
                     <td><span className="sno-badge">{tx.sno}</span></td>
-                    <td>{tx.description}</td>
-
-                    <td style={{ textAlign: "center" }}>
-                      {tx.income > 0 ? `+${formatCurrency(tx.income)}` : "—"}
+                    <td>
+                      {isEditing ? (
+                        <input
+                          type="text"
+                          className="et-edit-input"
+                          value={editForm.description}
+                          onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                          required
+                        />
+                      ) : (
+                        tx.description
+                      )}
                     </td>
 
                     <td style={{ textAlign: "center" }}>
-                      {tx.outgoing > 0 ? `-${formatCurrency(tx.outgoing)}` : "—"}
+                      {isEditing ? (
+                        <input
+                          type="number"
+                          className="et-edit-input"
+                          style={{ textAlign: "center" }}
+                          value={editForm.income}
+                          onChange={(e) => setEditForm({ ...editForm, income: e.target.value })}
+                          placeholder="0"
+                        />
+                      ) : (
+                        tx.income > 0 ? `+${formatCurrency(tx.income)}` : "—"
+                      )}
+                    </td>
+
+                    <td style={{ textAlign: "center" }}>
+                      {isEditing ? (
+                        <input
+                          type="number"
+                          className="et-edit-input"
+                          style={{ textAlign: "center" }}
+                          value={editForm.outgoing}
+                          onChange={(e) => setEditForm({ ...editForm, outgoing: e.target.value })}
+                          placeholder="0"
+                        />
+                      ) : (
+                        tx.outgoing > 0 ? `-${formatCurrency(tx.outgoing)}` : "—"
+                      )}
                     </td>
 
                     <td style={{ textAlign: "center" }}>
@@ -121,12 +186,43 @@ export default function TransactionList2() {
                     </td>
 
                     <td>
-                      <button
-                        className="et-delete-btn"
-                        onClick={() => dispatch(deleteTable2(tx._id))}
-                      >
-                        ✕
-                      </button>
+                      <div style={{ display: "flex", gap: "6px", justifyContent: "center", alignItems: "center" }}>
+                        {isEditing ? (
+                          <>
+                            <button
+                              className="et-save-btn"
+                              onClick={() => handleSaveEdit(tx._id)}
+                              title="Save"
+                            >
+                              💾
+                            </button>
+                            <button
+                              className="et-cancel-btn"
+                              onClick={handleCancelEdit}
+                              title="Cancel"
+                            >
+                              ✕
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <button
+                              className="et-edit-btn"
+                              onClick={() => handleStartEdit(tx)}
+                              title="Edit"
+                            >
+                              ✏️
+                            </button>
+                            <button
+                              className="et-delete-btn"
+                              onClick={() => dispatch(deleteTable2(tx._id))}
+                              title="Delete"
+                            >
+                              ✕
+                            </button>
+                          </>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 );

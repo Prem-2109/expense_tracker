@@ -18,6 +18,11 @@ export const deleteTransaction = createAsyncThunk("transactions/delete", async (
   return id;
 });
 
+export const updateTransaction = createAsyncThunk("transactions/update", async ({ id, data }) => {
+  const res = await axios.put(`${API_URL}/transactions/${id}`, data);
+  return res.data;
+});
+
 const transactionSlice = createSlice({
   name: "transactions",
   initialState: {
@@ -35,6 +40,12 @@ const transactionSlice = createSlice({
       })
       .addCase(deleteTransaction.fulfilled, (state, action) => {
         state.list = state.list.filter(t => t._id !== action.payload);
+      })
+      .addCase(updateTransaction.fulfilled, (state, action) => {
+        const index = state.list.findIndex(t => t._id === action.payload._id);
+        if (index !== -1) {
+          state.list[index] = action.payload;
+        }
       });
   },
 });

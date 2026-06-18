@@ -18,6 +18,11 @@ export const deleteTable3 = createAsyncThunk("table3/delete", async (id) => {
   return id;
 });
 
+export const updateTable3 = createAsyncThunk("table3/update", async ({ id, data }) => {
+  const res = await axios.put(`${API_URL}/table3/${id}`, data);
+  return res.data;
+});
+
 const table3Slice = createSlice({
   name: "table3",
   initialState: {
@@ -35,6 +40,12 @@ const table3Slice = createSlice({
       })
       .addCase(deleteTable3.fulfilled, (state, action) => {
         state.list = state.list.filter(t => t._id !== action.payload);
+      })
+      .addCase(updateTable3.fulfilled, (state, action) => {
+        const index = state.list.findIndex(t => t._id === action.payload._id);
+        if (index !== -1) {
+          state.list[index] = action.payload;
+        }
       });
   },
 });
