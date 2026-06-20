@@ -226,7 +226,7 @@ html, body, #root {
   border-bottom: 1px solid var(--border);
   transition: background 0.15s;
 }
-
+.et-table tbody{text-transform: uppercase;}
 .et-table tbody tr:last-child { border-bottom: none; }
 .et-table tbody tr:hover { background: rgba(255,255,255,0.03); }
 
@@ -786,6 +786,7 @@ html, body, #root {
   max-width: 1200px;
   margin: 0 auto;
   display: flex;
+  justify-content: center;
   gap: 4px;
   padding: 8px 0;
 }

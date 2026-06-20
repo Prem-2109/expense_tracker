@@ -4,16 +4,23 @@ export default function ExportModal({ onClose, data }) {
 
   // 🔹 Prepare Clean Data + Balance (FIXED)
   const prepareData = () => {
+    const sortedList = [...data]
+      .sort((a, b) => (a.sno ?? Infinity) - (b.sno ?? Infinity))
+      .map((item, index) => ({
+        ...item,
+        sno: index + 1,
+      }));
+
     let running = 0;
 
-    return data.map((t, i) => {
+    return sortedList.map((t) => {
       const income = Number(t.income) || 0;
       const expense = Number(t.outgoing) || 0;
 
       running += income - expense;
 
       return {
-        sno: i + 1,
+        sno: t.sno,
         description: (t.description || "").trim(),
         income,
         expense,
@@ -26,13 +33,79 @@ export default function ExportModal({ onClose, data }) {
   const exportExcel = async () => {
     const XLSX = await import("xlsx");
 
-    const cleanData = prepareData();
+    // Same ordering as UI
+    const sortedList = [...data]
+      .sort((a, b) => (a.sno ?? Infinity) - (b.sno ?? Infinity))
+      .map((item, index) => ({
+        ...item,
+        sno: index + 1,
+      }));
 
-    const ws = XLSX.utils.json_to_sheet(cleanData);
+    let running = 0;
+
+    const rows = sortedList.map((tx) => {
+      running += (tx.income || 0) - (tx.outgoing || 0);
+
+      return {
+        "S.No": tx.sno,
+        Description: tx.description,
+        Income: tx.income > 0 ? tx.income : "",
+        Expense: tx.outgoing > 0 ? tx.outgoing : "",
+        Balance: running,
+      };
+    });
+
+    const totalIncome = sortedList.reduce(
+      (sum, item) => sum + (item.income || 0),
+      0
+    );
+
+    const totalExpense = sortedList.reduce(
+      (sum, item) => sum + (item.outgoing || 0),
+      0
+    );
+
+    const netBalance = totalIncome - totalExpense;
+
+    const sheetData = [
+      ["Expense Tracker Report"],
+      [],
+      ["Total Income", totalIncome],
+      ["Total Expense", totalExpense],
+      ["Net Balance", netBalance],
+      [],
+      ["S.No", "Description", "Income", "Expense", "Balance"],
+      ...rows.map((row) => [
+        row["S.No"],
+        row.Description,
+        row.Income,
+        row.Expense,
+        row.Balance,
+      ]),
+    ];
+
+    const ws = XLSX.utils.aoa_to_sheet(sheetData);
+
+    ws["!cols"] = [
+      { wch: 10 },
+      { wch: 40 },
+      { wch: 18 },
+      { wch: 18 },
+      { wch: 18 },
+    ];
+
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Transactions");
 
-    XLSX.writeFile(wb, "transactions.xlsx");
+    XLSX.utils.book_append_sheet(
+      wb,
+      ws,
+      "Transactions"
+    );
+
+    XLSX.writeFile(
+      wb,
+      "Expense-Tracker.xlsx"
+    );
   };
 
   // 🔹 PDF Export (FULL UI STYLE)
@@ -40,81 +113,132 @@ export default function ExportModal({ onClose, data }) {
     const { default: jsPDF } = await import("jspdf");
     const autoTable = (await import("jspdf-autotable")).default;
 
-    const doc = new jsPDF();
+    const doc = new jsPDF("p", "mm", "a4");
 
     const cleanData = prepareData();
 
-    // ✅ Safe Currency Formatter
-    const formatCurrency = (val) => {
-      const num = Number(val) || 0;
-      return "Rs. " + num.toLocaleString("en-IN", {
+    const formatCurrency = (value) => {
+      const num = Number(value) || 0;
+
+      return `Rs. ${num.toLocaleString("en-IN", {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
-      });
+      })}`;
     };
 
-    // ─────────────────────────────
-    // 🎯 TOTALS
-    // ─────────────────────────────
+    // ==========================
+    // TOTALS
+    // ==========================
     const totals = cleanData.reduce(
-      (acc, t) => {
-        acc.income += t.income;
-        acc.expense += t.expense;
-        acc.balance = t.balance;
+      (acc, item) => {
+        acc.income += item.income;
+        acc.expense += item.expense;
+        acc.balance = item.balance;
         return acc;
       },
-      { income: 0, expense: 0, balance: 0 }
+      {
+        income: 0,
+        expense: 0,
+        balance: 0,
+      }
     );
 
-    // ─────────────────────────────
-    // 🎨 HEADER
-    // ─────────────────────────────
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+
+    // ==========================
+    // HEADER
+    // ==========================
     doc.setFillColor(99, 102, 241);
-    doc.rect(0, 0, 210, 30, "F");
+    doc.rect(0, 0, pageWidth, 28, "F");
 
     doc.setTextColor(255, 255, 255);
-    doc.setFontSize(16);
-    doc.text("Expense Tracker Report", 14, 18);
+    doc.setFontSize(18);
+    doc.text("Expense Tracker Report", 14, 17);
 
     doc.setFontSize(9);
     doc.text(
       `Generated on: ${new Date().toLocaleDateString()}`,
       14,
-      25
+      23
     );
 
-    doc.setTextColor(0, 0, 0);
-
-    // ─────────────────────────────
-    // 💳 CARD UI
-    // ─────────────────────────────
-    const drawCard = (x, y, title, value, color) => {
+    // ==========================
+    // CARDS
+    // ==========================
+    const drawCard = (x, y, w, h, title, value, color) => {
       doc.setFillColor(...color);
-      doc.roundedRect(x, y, 58, 28, 4, 4, "F");
+      doc.roundedRect(x, y, w, h, 4, 4, "F");
 
       doc.setTextColor(255, 255, 255);
 
-      doc.setFontSize(9);
-      doc.text(title, x + 4, y + 9);
+      doc.setFontSize(10);
+      doc.text(title, x + 4, y + 8);
 
-      doc.setFontSize(11);
-      doc.text(value, x + 4, y + 20);
-
-      doc.setTextColor(0, 0, 0);
+      doc.setFontSize(12);
+      doc.text(value, x + 4, y + 19);
     };
 
-    // ✅ Perfect alignment
-    const cardWidth = 58;
+    const margin = 14;
     const gap = 6;
-    const startX = 14;
 
-    drawCard(startX, 40, "Total Income", formatCurrency(totals.income), [34, 197, 94]);
-    drawCard(startX + cardWidth + gap, 40, "Total Expense", formatCurrency(totals.expense), [239, 68, 68]);
-    drawCard(startX + (cardWidth + gap) * 2, 40, "Balance", formatCurrency(totals.balance), [59, 130, 246]);
+    const cardWidth = (pageWidth - margin * 2 - gap * 2) / 3;
+    const cardHeight = 28;
 
-    // ─────────────────────────────
-    // 📋 TABLE DATA
-    // ─────────────────────────────
+    drawCard(
+      margin,
+      38,
+      cardWidth,
+      cardHeight,
+      "Total Income",
+      formatCurrency(totals.income),
+      [34, 197, 94]
+    );
+
+    drawCard(
+      margin + cardWidth + gap,
+      38,
+      cardWidth,
+      cardHeight,
+      "Total Expense",
+      formatCurrency(totals.expense),
+      [239, 68, 68]
+    );
+
+    drawCard(
+      margin + (cardWidth + gap) * 2,
+      38,
+      cardWidth,
+      cardHeight,
+      "Balance",
+      formatCurrency(totals.balance),
+      [59, 130, 246]
+    );
+
+    // ==========================
+    // SUMMARY STRIP
+    // ==========================
+    doc.setFillColor(245, 247, 255);
+    doc.roundedRect(14, 74, pageWidth - 28, 10, 2, 2, "F");
+
+    doc.setTextColor(80);
+    doc.setFontSize(9);
+
+    doc.text(
+      `Total Transactions: ${cleanData.length}`,
+      18,
+      80
+    );
+
+    doc.text(
+      `Net Balance: ${formatCurrency(totals.balance)}`,
+      pageWidth - 70,
+      80
+    );
+
+    // ==========================
+    // TABLE DATA
+    // ==========================
     const rows = cleanData.map((t) => [
       t.sno,
       t.description || "-",
@@ -123,70 +247,103 @@ export default function ExportModal({ onClose, data }) {
       formatCurrency(t.balance),
     ]);
 
-    // ─────────────────────────────
-    // 📊 TABLE (COMPACT + CLEAN)
-    // ─────────────────────────────
+    // ==========================
+    // TABLE
+    // ==========================
     autoTable(doc, {
-      startY: 78,
+      startY: 90,
 
       head: [["#", "Description", "Income", "Expense", "Balance"]],
+
       body: rows,
 
       theme: "grid",
 
+      margin: {
+        left: 14,
+        right: 14,
+      },
+
       styles: {
-        fontSize: 9,
+        fontSize: 8.5,
         cellPadding: 2.5,
         valign: "middle",
-        overflow: "linebreak",
+        overflow: "hidden",
       },
 
       headStyles: {
         fillColor: [99, 102, 241],
-        textColor: 255,
-        fontSize: 10,
+        textColor: [255, 255, 255],
         halign: "center",
-      },
-
-      columnStyles: {
-        0: { cellWidth: 10, halign: "center" },
-        1: { cellWidth: 70 },
-        2: { cellWidth: 30, halign: "right" },
-        3: { cellWidth: 30, halign: "right" },
-        4: { cellWidth: 30, halign: "right" },
+        fontSize: 10,
       },
 
       alternateRowStyles: {
-        fillColor: [245, 247, 255],
+        fillColor: [248, 250, 252],
       },
 
-      didParseCell: function (data) {
+      columnStyles: {
+        0: {
+          cellWidth: 12,
+          halign: "center",
+        },
+
+        1: {
+          cellWidth: 86,
+        },
+
+        2: {
+          cellWidth: 28,
+          halign: "right",
+        },
+
+        3: {
+          cellWidth: 28,
+          halign: "right",
+        },
+
+        4: {
+          cellWidth: 28,
+          halign: "right",
+        },
+      },
+
+      didParseCell: (data) => {
         if (data.column.index === 1 && data.cell.raw) {
-          const text = String(data.cell.raw);
-          if (text.length > 35) {
-            data.cell.text = text.substring(0, 35) + "...";
+          const txt = String(data.cell.raw);
+
+          if (txt.length > 40) {
+            data.cell.text = [txt.substring(0, 40) + "..."];
           }
         }
       },
-
-      margin: { left: 14, right: 14 },
     });
 
-    // ─────────────────────────────
-    // 🧾 FOOTER
-    // ─────────────────────────────
-    const pageHeight = doc.internal.pageSize.height;
+    // ==========================
+    // FOOTER
+    // ==========================
+    const pageCount = doc.internal.getNumberOfPages();
 
-    doc.setFontSize(8);
-    doc.setTextColor(120);
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
 
-    doc.text(
-      "Generated by Expense Tracker",
-      14,
-      pageHeight - 10
-    );
+      doc.setFontSize(8);
+      doc.setTextColor(120);
 
-    doc.save("transactions.pdf");
+      doc.text(
+        "Generated by Expense Tracker",
+        14,
+        pageHeight - 8
+      );
+
+      doc.text(
+        `Page ${i} of ${pageCount}`,
+        pageWidth - 25,
+        pageHeight - 8
+      );
+    }
+
+    doc.save("Expense-Tracker-Report.pdf");
   };
 
   return (
