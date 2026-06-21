@@ -11,6 +11,10 @@ export default function QuotationGenerator() {
     const rate = Number(ratePerSqft) || 0;
     const ownerCount = Number(owners) || 0;
 
+    const leftMargin = 20;
+    const contentWidth = 170; // A4 width (210) - 20 - 20
+    const rightMargin = leftMargin + contentWidth;
+
     const totalValue = area * rate;
     const sharePerOwner = ownerCount ? area / ownerCount : 0;
     const valuePerOwner = ownerCount ? totalValue / ownerCount : 0;
@@ -21,13 +25,21 @@ export default function QuotationGenerator() {
     const downloadPDF = () => {
         const doc = new jsPDF();
 
-        doc.setFontSize(18);
-        doc.setFontSize(18);
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
+
+        // Header Background
+        doc.setFillColor(30, 64, 175);
+        doc.rect(0, 0, pageWidth, 35, "F");
+
+        // Company Name
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(22);
         doc.setFont(undefined, "bold");
         doc.text(
-            "Sri Maruthi Construction",
-            doc.internal.pageSize.getWidth() / 2,
-            20,
+            "SRI MARUTHI CONSTRUCTION",
+            pageWidth / 2,
+            15,
             { align: "center" }
         );
 
@@ -35,38 +47,133 @@ export default function QuotationGenerator() {
         doc.setFont(undefined, "normal");
         doc.text(
             "Real Estate Share & Valuation Report",
-            doc.internal.pageSize.getWidth() / 2,
-            28,
+            pageWidth / 2,
+            25,
             { align: "center" }
         );
 
-        doc.setFontSize(12);
+        // Reset text color
+        doc.setTextColor(0, 0, 0);
+
+        // Quotation Title
+        doc.setFontSize(16);
+        doc.setFont(undefined, "bold");
+        doc.text("PROPERTY QUOTATION", pageWidth / 2, 50, {
+            align: "center",
+        });
+
+        // Generated Date
+        doc.setFontSize(10);
+        doc.setFont(undefined, "normal");
+        doc.text(
+            `Date : ${new Date().toLocaleDateString("en-IN")}`,
+            20,
+            65
+        );
+
+        // Table
+        const startY = 75;
+        const rowHeight = 12;
 
         const rows = [
             ["Total Area", `${area} Sq.Ft`],
-            ["Rate per Sq.Ft", `Rs. ${formatCurrency(rate)}`],
+            ["Rate Per Sq.Ft", `Rs. ${formatCurrency(rate)}`],
             ["Total Property Value", `Rs. ${formatCurrency(totalValue)}`],
             ["Number of Owners", ownerCount.toString()],
-            ["Share per Owner", `${sharePerOwner.toFixed(2)} Sq.Ft`],
-            ["Value per Owner", `Rs. ${formatCurrency(valuePerOwner)}`],
+            ["Share Per Owner", `${sharePerOwner.toFixed(2)} Sq.Ft`],
+            ["Value Per Owner", `Rs. ${formatCurrency(valuePerOwner)}`],
         ];
 
-        let y = 40;
+        let y = startY;
 
         rows.forEach(([label, value]) => {
-            doc.text(label, 20, y);
+            const col1 = 70;
+            const col2 = 100;
+
+            doc.rect(leftMargin, y - 7, col1, rowHeight);
+            doc.rect(leftMargin + col1, y - 7, col2, rowHeight);
+
+            doc.setFont(undefined, "bold");
+            doc.text(label, 25, y);
+
+            doc.setFont(undefined, "normal");
             doc.text(value, 100, y);
-            y += 12;
+
+            y += 11;
         });
 
-        doc.text(
-            `Generated On: ${new Date().toLocaleDateString("en-IN")}`,
+        // Highlight Total Value
+        doc.setFillColor(22, 163, 74);
+        doc.roundedRect(
+            leftMargin,
+            y + 10,
+            contentWidth,
             20,
-            y + 10
+            3,
+            3,
+            "F"
+        );
+
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(14);
+        doc.setFont(undefined, "bold");
+        doc.text(
+            `TOTAL PROPERTY VALUE : Rs. ${formatCurrency(totalValue)}`,
+            pageWidth / 2,
+            y + 23,
+            { align: "center" }
+        );
+
+        doc.setTextColor(0, 0, 0);
+
+        // Signature Section
+        const signWidth = 50;
+        const signX = rightMargin - signWidth;
+
+        doc.line(
+            signX,
+            y + 55,
+            signX + signWidth,
+            y + 55
+        );
+
+        doc.text(
+            "Authorized Signature",
+            signX + signWidth / 2,
+            y + 62,
+            { align: "center" }
+        );
+
+        // Footer
+        doc.setDrawColor(200);
+        doc.line(15, pageHeight - 25, pageWidth - 15, pageHeight - 25);
+
+        doc.setFontSize(9);
+        doc.setTextColor(100);
+
+        doc.text(
+            "Sri Maruthi Construction",
+            pageWidth / 2,
+            pageHeight - 18,
+            { align: "center" }
+        );
+
+        doc.text(
+            "Building Trust Through Quality Construction",
+            pageWidth / 2,
+            pageHeight - 12,
+            { align: "center" }
+        );
+
+        doc.text(
+            `Generated on ${new Date().toLocaleDateString("en-IN")}`,
+            pageWidth / 2,
+            pageHeight - 6,
+            { align: "center" }
         );
 
         doc.save(
-            `Sri_Maruthi_Quotation-${new Date()
+            `Sri_Maruthi_Quotation_${new Date()
                 .toLocaleDateString("en-IN")
                 .replace(/\//g, "-")}.pdf`
         );
@@ -255,6 +362,47 @@ export default function QuotationGenerator() {
                     >
                         📄 Download Quotation PDF
                     </button>
+                </div>
+                {/* Footer */}
+                <div
+                    style={{
+                        marginTop: "60px",
+                        background: "#0f172a",
+                        color: "#fff",
+                        padding: "30px",
+                        borderRadius: "20px",
+                        textAlign: "center",
+                        boxShadow: "0 10px 25px rgba(0,0,0,0.15)",
+                    }}
+                >
+                    <h2
+                        style={{
+                            margin: "0 0 10px",
+                            fontSize: "24px",
+                            fontWeight: "700",
+                        }}
+                    >
+                        Sri Maruthi Construction
+                    </h2>
+
+                    <p
+                        style={{
+                            margin: "0 0 10px",
+                            opacity: 0.85,
+                        }}
+                    >
+                        Building Trust Through Quality Construction
+                    </p>
+
+                    <p
+                        style={{
+                            margin: 0,
+                            fontSize: "14px",
+                            opacity: 0.7,
+                        }}
+                    >
+                        Real Estate • Construction • Property Development
+                    </p>
                 </div>
             </div>
         </div>
