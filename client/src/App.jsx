@@ -10,9 +10,9 @@ import Footer from "./components/Footer.jsx";
 import ExportModal from "./components/ExportModal.jsx";
 
 const TABS = [
-  { id: 1, label: "Dashboard 1", icon: "📊" },
-  { id: 2, label: "Dashboard 2", icon: "📈" },
-  { id: 3, label: "Dashboard 3", icon: "📉" },
+  { id: 1, label: "Suresh To Durai", icon: "📊" },
+  { id: 2, label: "Suresh To Swamy", icon: "📈" },
+  { id: 3, label: "Suresh To Sunder", icon: "📉" },
 ];
 
 function App() {
