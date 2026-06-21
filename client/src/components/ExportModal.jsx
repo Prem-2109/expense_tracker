@@ -62,6 +62,8 @@ export default function ExportModal({ onClose, data }) {
     let running = 0;
 
     const rows = [];
+    let excelRowIdx = 7;
+    const merges = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 4 } }];
 
     sortedList.forEach((tx) => {
       const isHeading =
@@ -74,19 +76,20 @@ export default function ExportModal({ onClose, data }) {
           heading: true,
           Description: tx.description,
         });
-        return;
+        merges.push({ s: { r: excelRowIdx, c: 0 }, e: { r: excelRowIdx, c: 4 } });
+      } else {
+        running += (tx.income || 0) - (tx.outgoing || 0);
+
+        rows.push({
+          heading: false,
+          "S.No": tx.sno,
+          Description: tx.description,
+          Income: tx.income > 0 ? tx.income : "",
+          Expense: tx.outgoing > 0 ? tx.outgoing : "",
+          Balance: running,
+        });
       }
-
-      running += (tx.income || 0) - (tx.outgoing || 0);
-
-      rows.push({
-        heading: false,
-        "S.No": tx.sno,
-        Description: tx.description,
-        Income: tx.income > 0 ? tx.income : "",
-        Expense: tx.outgoing > 0 ? tx.outgoing : "",
-        Balance: running,
-      });
+      excelRowIdx++;
     });
 
     const totalIncome = sortedList.reduce(
@@ -111,7 +114,7 @@ export default function ExportModal({ onClose, data }) {
       ["S.No", "Description", "Income", "Expense", "Balance"],
       ...rows.map((row) =>
         row.heading
-          ? ["", row.Description.toUpperCase(), "", "", ""]
+          ? [row.Description.toUpperCase(), "", "", "", ""]
           : [
             row["S.No"],
             row.Description,
@@ -123,6 +126,7 @@ export default function ExportModal({ onClose, data }) {
     ];
 
     const ws = XLSX.utils.aoa_to_sheet(sheetData);
+    ws["!merges"] = merges;
 
     ws["!cols"] = [
       { wch: 10 },
@@ -287,11 +291,16 @@ export default function ExportModal({ onClose, data }) {
 
       if (isHeading) {
         rows.push([
-          "",
-          t.description.toUpperCase(),
-          "",
-          "",
-          "",
+          {
+            content: t.description.toUpperCase(),
+            colSpan: 5,
+            styles: {
+              fillColor: [74, 115, 189],
+              textColor: [255, 255, 255],
+              fontStyle: "bold",
+              halign: "center",
+            },
+          },
         ]);
       } else {
         rows.push([
