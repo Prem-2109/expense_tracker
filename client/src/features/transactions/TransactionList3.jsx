@@ -47,15 +47,33 @@ export default function TransactionList3() {
     setEditingId(null);
   };
 
-  const sortedList = [...list]
-    .sort((a, b) => (a.sno ?? Infinity) - (b.sno ?? Infinity))
-    .map((item, index) => ({
-      ...item,
-      sno: index + 1,
-    }));
+  const sortedList = [...list].sort(
+    (a, b) => (a.sno ?? Infinity) - (b.sno ?? Infinity)
+  );
 
-  const totalIncome = sortedList.reduce((s, t) => s + t.income, 0);
-  const totalExpense = sortedList.reduce((s, t) => s + t.outgoing, 0);
+  let visibleSno = 1;
+
+  const processedList = sortedList.map((item) => {
+    const isHeading =
+      item.description?.trim() &&
+      (!item.income || Number(item.income) === 0) &&
+      (!item.outgoing || Number(item.outgoing) === 0);
+
+    return {
+      ...item,
+      sno: isHeading ? "" : visibleSno++,
+      isHeading,
+    };
+  });
+
+  const totalIncome = processedList.reduce(
+    (s, t) => s + (Number(t.income) || 0),
+    0
+  );
+  const totalExpense = processedList.reduce(
+    (s, t) => s + (Number(t.outgoing) || 0),
+    0
+  );
   const netBalance = totalIncome - totalExpense;
 
   if (sortedList.length === 0) {
@@ -131,12 +149,61 @@ export default function TransactionList3() {
           <tbody>
             {(() => {
               let running = 0;
-              return sortedList.map((tx) => {
-                running += tx.income - tx.outgoing;
+
+              return processedList.map((tx) => {
                 const isEditing = tx._id === editingId;
+
+                const isHeading = tx.isHeading;
+
+                // HEADING ROW
+                if (isHeading && !isEditing) {
+                  return (
+                    <tr key={tx._id}>
+                      <td
+                        colSpan={5}
+                        style={{
+                          background: "#4a73bd",
+                          color: "#fff",
+                          fontWeight: "700",
+                          textAlign: "center",
+                          padding: "12px",
+                          textTransform: "uppercase",
+                        }}
+                      >
+                        {tx.description}
+                      </td>
+
+                      <td
+                        style={{
+                          background: "#4a73bd",
+                          textAlign: "center",
+                        }}
+                      >
+                        <button
+                          className="et-edit-btn"
+                          onClick={() => handleStartEdit(tx)}
+                        >
+                          ✏️
+                        </button>
+
+                        <button
+                          className="et-delete-btn"
+                          onClick={() => dispatch(deleteTable3(tx._id))}
+                        >
+                          ✕
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                }
+
+                running += (tx.income || 0) - (tx.outgoing || 0);
+
                 return (
                   <tr key={tx._id}>
-                    <td><span className="sno-badge">{tx.sno}</span></td>
+                    <td>
+                      {tx.sno && <span className="sno-badge">{tx.sno}</span>}
+                    </td>
                     <td>
                       {isEditing ? (
                         <input

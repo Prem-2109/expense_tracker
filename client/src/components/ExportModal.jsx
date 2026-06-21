@@ -1,15 +1,25 @@
 import React from "react";
 
 export default function ExportModal({ onClose, data }) {
+  const today = new Date().toLocaleDateString("en-GB").replace(/\//g, "-");
 
   // 🔹 Prepare Clean Data + Balance (FIXED)
+
   const prepareData = () => {
-    const sortedList = [...data]
-      .sort((a, b) => (a.sno ?? Infinity) - (b.sno ?? Infinity))
-      .map((item, index) => ({
+    const sorted = [...data]
+      .sort((a, b) => (a.sno ?? Infinity) - (b.sno ?? Infinity));
+
+    let visibleSno = 1;
+    const sortedList = sorted.map((item) => {
+      const isHeading =
+        item.description?.trim() &&
+        Number(item.income || 0) === 0 &&
+        Number(item.outgoing || 0) === 0;
+      return {
         ...item,
-        sno: index + 1,
-      }));
+        sno: isHeading ? "" : visibleSno++,
+      };
+    });
 
     let running = 0;
 
@@ -34,25 +44,49 @@ export default function ExportModal({ onClose, data }) {
     const XLSX = await import("xlsx");
 
     // Same ordering as UI
-    const sortedList = [...data]
-      .sort((a, b) => (a.sno ?? Infinity) - (b.sno ?? Infinity))
-      .map((item, index) => ({
+    const sorted = [...data]
+      .sort((a, b) => (a.sno ?? Infinity) - (b.sno ?? Infinity));
+
+    let visibleSno = 1;
+    const sortedList = sorted.map((item) => {
+      const isHeading =
+        item.description?.trim() &&
+        Number(item.income || 0) === 0 &&
+        Number(item.outgoing || 0) === 0;
+      return {
         ...item,
-        sno: index + 1,
-      }));
+        sno: isHeading ? "" : visibleSno++,
+      };
+    });
 
     let running = 0;
 
-    const rows = sortedList.map((tx) => {
+    const rows = [];
+
+    sortedList.forEach((tx) => {
+      const isHeading =
+        tx.description?.trim() &&
+        Number(tx.income || 0) === 0 &&
+        Number(tx.outgoing || 0) === 0;
+
+      if (isHeading) {
+        rows.push({
+          heading: true,
+          Description: tx.description,
+        });
+        return;
+      }
+
       running += (tx.income || 0) - (tx.outgoing || 0);
 
-      return {
+      rows.push({
+        heading: false,
         "S.No": tx.sno,
         Description: tx.description,
         Income: tx.income > 0 ? tx.income : "",
         Expense: tx.outgoing > 0 ? tx.outgoing : "",
         Balance: running,
-      };
+      });
     });
 
     const totalIncome = sortedList.reduce(
@@ -75,13 +109,17 @@ export default function ExportModal({ onClose, data }) {
       ["Net Balance", netBalance],
       [],
       ["S.No", "Description", "Income", "Expense", "Balance"],
-      ...rows.map((row) => [
-        row["S.No"],
-        row.Description,
-        row.Income,
-        row.Expense,
-        row.Balance,
-      ]),
+      ...rows.map((row) =>
+        row.heading
+          ? ["", row.Description.toUpperCase(), "", "", ""]
+          : [
+            row["S.No"],
+            row.Description,
+            row.Income,
+            row.Expense,
+            row.Balance,
+          ]
+      ),
     ];
 
     const ws = XLSX.utils.aoa_to_sheet(sheetData);
@@ -104,7 +142,7 @@ export default function ExportModal({ onClose, data }) {
 
     XLSX.writeFile(
       wb,
-      "Expense-Tracker.xlsx"
+      `Expense-Tracker-${today}.xlsx`
     );
   };
 
@@ -239,13 +277,32 @@ export default function ExportModal({ onClose, data }) {
     // ==========================
     // TABLE DATA
     // ==========================
-    const rows = cleanData.map((t) => [
-      t.sno,
-      t.description || "-",
-      t.income > 0 ? formatCurrency(t.income) : "-",
-      t.expense > 0 ? formatCurrency(t.expense) : "-",
-      formatCurrency(t.balance),
-    ]);
+    const rows = [];
+
+    cleanData.forEach((t) => {
+      const isHeading =
+        t.description?.trim() &&
+        t.income === 0 &&
+        t.expense === 0;
+
+      if (isHeading) {
+        rows.push([
+          "",
+          t.description.toUpperCase(),
+          "",
+          "",
+          "",
+        ]);
+      } else {
+        rows.push([
+          t.sno,
+          t.description || "-",
+          t.income > 0 ? formatCurrency(t.income) : "-",
+          t.expense > 0 ? formatCurrency(t.expense) : "-",
+          formatCurrency(t.balance),
+        ]);
+      }
+    });
 
     // ==========================
     // TABLE
@@ -309,6 +366,20 @@ export default function ExportModal({ onClose, data }) {
       },
 
       didParseCell: (data) => {
+        const row = data.row.raw;
+
+        if (
+          row &&
+          row[0] === "" &&
+          row[2] === "" &&
+          row[3] === ""
+        ) {
+          data.cell.styles.fillColor = [74, 115, 189];
+          data.cell.styles.textColor = [255, 255, 255];
+          data.cell.styles.fontStyle = "bold";
+          data.cell.styles.halign = "center";
+        }
+
         if (data.column.index === 1 && data.cell.raw) {
           const txt = String(data.cell.raw);
 
@@ -343,7 +414,7 @@ export default function ExportModal({ onClose, data }) {
       );
     }
 
-    doc.save("Expense-Tracker-Report.pdf");
+    doc.save(`Expense-Tracker-Report-${today}.pdf`);
   };
 
   return (
