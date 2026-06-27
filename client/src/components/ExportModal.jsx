@@ -267,7 +267,7 @@ export default function ExportModal({ onClose, data }) {
     doc.setFontSize(9);
 
     doc.text(
-      `Total Transactions: ${cleanData.length}`,
+      `Total Transactions: ${cleanData.filter((t) => !(t.income === 0 && t.expense === 0)).length}`,
       18,
       80
     );
