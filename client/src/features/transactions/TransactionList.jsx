@@ -250,15 +250,15 @@ export default function TransactionList() {
                       style={rowStyle}
                     >
                       {/* Drag handle */}
-                      <td style={{ background: "#4a73bd", cursor: "grab", textAlign: "center", padding: "8px 4px", fontSize: "16px", color: "rgba(255,255,255,0.7)" }}>
+                      <td style={{ background: "#FFFFAA", cursor: "grab", textAlign: "center", padding: "8px 4px", fontSize: "16px", color: "rgba(0,0,0,0.6)" }}>
                         ⠿
                       </td>
-                      <td style={{ background: "#4a73bd" }}></td>
+                      <td style={{ background: "#FFFFAA" }}></td>
                       <td
                         colSpan={4}
                         style={{
-                          background: "#4a73bd",
-                          color: "#fff",
+                          background: "#FFFFAA",
+                          color: "#000",
                           fontWeight: "700",
                           textAlign: "center",
                           padding: "12px",
@@ -270,7 +270,7 @@ export default function TransactionList() {
 
                       <td
                         style={{
-                          background: "#4a73bd",
+                          background: "#FFFFAA",
                           textAlign: "center",
                         }}
                       >

@@ -162,8 +162,8 @@ export default function TransactionList3() {
                       <td
                         colSpan={5}
                         style={{
-                          background: "#4a73bd",
-                          color: "#fff",
+                          background: "#FFFFAA",
+                          color: "#000",
                           fontWeight: "700",
                           textAlign: "center",
                           padding: "12px",
@@ -175,7 +175,7 @@ export default function TransactionList3() {
 
                       <td
                         style={{
-                          background: "#4a73bd",
+                          background: "#FFFFAA",
                           textAlign: "center",
                         }}
                       >

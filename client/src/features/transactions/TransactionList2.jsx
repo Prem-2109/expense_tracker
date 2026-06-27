@@ -241,7 +241,7 @@ export default function TransactionList2() {
                       onDragEnd={handleDragEnd}
                       style={rowStyle}
                     >
-                      <td style={{ background: "#8a7a00", cursor: "grab", textAlign: "center", padding: "8px 4px", fontSize: "16px", color: "rgba(0,0,0,0.6)" }}>
+                      <td style={{ background: "#FFFFAA", cursor: "grab", textAlign: "center", padding: "8px 4px", fontSize: "16px", color: "rgba(0,0,0,0.6)" }}>
                         ⠿
                       </td>
                       <td style={{ background: "#FFFFAA" }}></td>
