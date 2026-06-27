@@ -786,12 +786,15 @@ html, body, #root {
 }
 
 .tab-nav-inner {
-  max-width: 1200px;
-  margin: 0 auto;
-  display: flex;
-  justify-content: center;
-  gap: 4px;
-  padding: 8px 0;
+    gap: 4px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 8px 0;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-content: space-between;
+    justify-content: flex-start;
 }
 
 .tab-btn {

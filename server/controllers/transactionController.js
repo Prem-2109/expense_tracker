@@ -40,3 +40,18 @@ exports.deleteTransaction = async (req, res) => {
     res.status(400).json({ error: err.message });
   }
 };
+
+exports.reorderTransactions = async (req, res) => {
+  try {
+    // req.body = [{ id, sno }, ...]
+    const updates = req.body;
+    await Promise.all(
+      updates.map(({ id, sno }) =>
+        Transaction.findByIdAndUpdate(id, { sno }, { new: true })
+      )
+    );
+    res.json({ message: "Reordered successfully" });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};

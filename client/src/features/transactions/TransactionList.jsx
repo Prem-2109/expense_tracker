@@ -1,6 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchTransactions, deleteTransaction, updateTransaction } from "./transactionSlice.js";
+import {
+  fetchTransactions,
+  deleteTransaction,
+  updateTransaction,
+  reorderTransactions,
+  reorderLocal,
+} from "./transactionSlice.js";
 
 const formatCurrency = (amount) =>
   new Intl.NumberFormat("en-IN", {
@@ -15,6 +21,11 @@ export default function TransactionList() {
 
   const [editingId, setEditingId] = useState(null);
   const [editForm, setEditForm] = useState({ description: "", income: "", outgoing: "" });
+
+  // drag state
+  const dragIdx = useRef(null);
+  const [dragOverIdx, setDragOverIdx] = useState(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   useEffect(() => {
     dispatch(fetchTransactions());
@@ -51,6 +62,62 @@ export default function TransactionList() {
     (a, b) => (a.sno ?? Infinity) - (b.sno ?? Infinity)
   );
 
+  // ── Drag handlers ──────────────────────────────────────
+  const handleDragStart = (e, index) => {
+    dragIdx.current = index;
+    setIsDragging(true);
+    e.dataTransfer.effectAllowed = "move";
+    // ghost image effect
+    e.dataTransfer.setData("text/plain", index);
+  };
+
+  const handleDragOver = (e, index) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    setDragOverIdx(index);
+  };
+
+  const handleDragLeave = () => {
+    setDragOverIdx(null);
+  };
+
+  const handleDrop = (e, dropIndex) => {
+    e.preventDefault();
+    const fromIndex = dragIdx.current;
+    if (fromIndex === null || fromIndex === dropIndex) {
+      setDragOverIdx(null);
+      setIsDragging(false);
+      return;
+    }
+
+    // Build new order
+    const newList = [...sortedList];
+    const [moved] = newList.splice(fromIndex, 1);
+    newList.splice(dropIndex, 0, moved);
+
+    // Assign fresh sequential sno values (preserve heading-row sno as 0/small)
+    const updated = newList.map((item, i) => ({ ...item, sno: i + 1 }));
+
+    // Optimistic local update
+    dispatch(reorderLocal(updated));
+
+    // Persist to server
+    dispatch(
+      reorderTransactions(updated.map((item) => ({ id: item._id, sno: item.sno })))
+    );
+
+    dragIdx.current = null;
+    setDragOverIdx(null);
+    setIsDragging(false);
+  };
+
+  const handleDragEnd = () => {
+    dragIdx.current = null;
+    setDragOverIdx(null);
+    setIsDragging(false);
+  };
+  // ──────────────────────────────────────────────────────
+
   let visibleSno = 1;
 
   const processedList = sortedList.map((item) => {
@@ -61,7 +128,7 @@ export default function TransactionList() {
 
     return {
       ...item,
-      sno: isHeading ? "" : visibleSno++,
+      displaySno: isHeading ? "" : visibleSno++,
       isHeading,
     };
   });
@@ -97,7 +164,6 @@ export default function TransactionList() {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
 
-      {/* ✅ ONLY CHANGE HERE */}
       <div className="summary-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "12px" }}>
 
         <div className="stat-card stat-card-income">
@@ -133,11 +199,17 @@ export default function TransactionList() {
 
       </div>
 
+      {/* Drag hint */}
+      <p style={{ fontSize: "0.72rem", color: "#475569", display: "flex", alignItems: "center", gap: "6px", margin: "0" }}>
+        <span>⠿</span> Drag the handle on the left to reorder rows
+      </p>
+
       {/* TABLE */}
       <div style={{ overflowX: "auto", borderRadius: "14px", border: "1px solid rgba(255,255,255,0.06)" }}>
         <table className="et-table">
           <thead>
             <tr>
+              <th style={{ width: "32px", padding: "8px 4px" }} title="Drag to reorder">⠿</th>
               <th>S.no</th>
               <th>Description</th>
               <th style={{ textAlign: "center" }}>Income</th>
@@ -150,17 +222,40 @@ export default function TransactionList() {
             {(() => {
               let running = 0;
 
-              return processedList.map((tx) => {
+              return processedList.map((tx, index) => {
                 const isEditing = tx._id === editingId;
-
                 const isHeading = tx.isHeading;
+                const isDragOver = dragOverIdx === index;
+                const isDraggingThis = dragIdx.current === index;
+
+                const rowStyle = {
+                  opacity: isDraggingThis && isDragging ? 0.4 : 1,
+                  outline: isDragOver ? "2px dashed #6366f1" : "none",
+                  outlineOffset: "-2px",
+                  transition: "opacity 0.15s, outline 0.1s",
+                  cursor: "default",
+                };
 
                 // HEADING ROW
                 if (isHeading && !isEditing) {
                   return (
-                    <tr key={tx._id}>
+                    <tr
+                      key={tx._id}
+                      draggable
+                      onDragStart={(e) => handleDragStart(e, index)}
+                      onDragOver={(e) => handleDragOver(e, index)}
+                      onDragLeave={handleDragLeave}
+                      onDrop={(e) => handleDrop(e, index)}
+                      onDragEnd={handleDragEnd}
+                      style={rowStyle}
+                    >
+                      {/* Drag handle */}
+                      <td style={{ background: "#4a73bd", cursor: "grab", textAlign: "center", padding: "8px 4px", fontSize: "16px", color: "rgba(255,255,255,0.7)" }}>
+                        ⠿
+                      </td>
+                      <td style={{ background: "#4a73bd" }}></td>
                       <td
-                        colSpan={5}
+                        colSpan={4}
                         style={{
                           background: "#4a73bd",
                           color: "#fff",
@@ -200,9 +295,32 @@ export default function TransactionList() {
                 running += (tx.income || 0) - (tx.outgoing || 0);
 
                 return (
-                  <tr key={tx._id}>
+                  <tr
+                    key={tx._id}
+                    draggable
+                    onDragStart={(e) => handleDragStart(e, index)}
+                    onDragOver={(e) => handleDragOver(e, index)}
+                    onDragLeave={handleDragLeave}
+                    onDrop={(e) => handleDrop(e, index)}
+                    onDragEnd={handleDragEnd}
+                    style={rowStyle}
+                  >
+                    {/* Drag handle cell */}
+                    <td style={{
+                      cursor: "grab",
+                      textAlign: "center",
+                      padding: "8px 4px",
+                      fontSize: "16px",
+                      color: "#475569",
+                      userSelect: "none",
+                    }}
+                      title="Drag to reorder"
+                    >
+                      ⠿
+                    </td>
+
                     <td>
-                      {tx.sno && <span className="sno-badge">{tx.sno}</span>}
+                      {tx.displaySno && <span className="sno-badge">{tx.displaySno}</span>}
                     </td>
                     <td>
                       {isEditing ? (

@@ -23,13 +23,25 @@ export const updateTransaction = createAsyncThunk("transactions/update", async (
   return res.data;
 });
 
+export const reorderTransactions = createAsyncThunk("transactions/reorder", async (updates) => {
+  // updates = [{ id, sno }, ...]
+  await axios.post(`${API_URL}/transactions/reorder`, updates);
+  return updates;
+});
+
 const transactionSlice = createSlice({
   name: "transactions",
   initialState: {
     list: [],
     status: "idle",
   },
-  reducers: {},
+  reducers: {
+    // Optimistic local reorder — swaps sno values in state immediately
+    reorderLocal(state, action) {
+      // action.payload = new ordered list of full objects
+      state.list = action.payload;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchTransactions.fulfilled, (state, action) => {
@@ -50,4 +62,5 @@ const transactionSlice = createSlice({
   },
 });
 
+export const { reorderLocal } = transactionSlice.actions;
 export default transactionSlice.reducer;

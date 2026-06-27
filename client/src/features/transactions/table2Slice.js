@@ -23,13 +23,22 @@ export const updateTable2 = createAsyncThunk("table2/update", async ({ id, data 
   return res.data;
 });
 
+export const reorderTable2 = createAsyncThunk("table2/reorder", async (updates) => {
+  await axios.post(`${API_URL}/table2/reorder`, updates);
+  return updates;
+});
+
 const table2Slice = createSlice({
   name: "table2",
   initialState: {
     list: [],
     status: "idle",
   },
-  reducers: {},
+  reducers: {
+    reorderLocal2(state, action) {
+      state.list = action.payload;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchTable2.fulfilled, (state, action) => {
@@ -50,4 +59,5 @@ const table2Slice = createSlice({
   },
 });
 
+export const { reorderLocal2 } = table2Slice.actions;
 export default table2Slice.reducer;

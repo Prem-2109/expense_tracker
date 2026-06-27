@@ -116,7 +116,7 @@ function App() {
                         <div style={{
                             display: "flex",
                             justifyContent: "space-between",
-                            alignItems: "center",
+                            alignItems: "baseline",
                             gap: "10px"
                         }}>
                             <h2 className="panel-title">

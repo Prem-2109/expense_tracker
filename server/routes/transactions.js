@@ -4,11 +4,13 @@ const {
   getTransactions,
   addTransaction,
   updateTransaction,
-  deleteTransaction
+  deleteTransaction,
+  reorderTransactions
 } = require("../controllers/transactionController");
 
 router.get("/", getTransactions);
 router.post("/", addTransaction);
+router.post("/reorder", reorderTransactions);
 router.put("/:id", updateTransaction);
 router.delete("/:id", deleteTransaction);
 
