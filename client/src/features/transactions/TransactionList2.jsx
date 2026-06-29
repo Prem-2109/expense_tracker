@@ -204,9 +204,9 @@ export default function TransactionList2() {
               <th style={{ width: "32px", padding: "8px 4px" }} title="Drag to reorder">⠿</th>
               <th>S.no</th>
               <th>Description</th>
-              <th style={{ textAlign: "right" }}>Income</th>
-              <th style={{ textAlign: "right" }}>Expense</th>
-              <th style={{ textAlign: "right" }}>Balance</th>
+              <th style={{ textAlign: "center" }}>Income</th>
+              <th style={{ textAlign: "center" }}>Expense</th>
+              <th style={{ textAlign: "center" }}>Balance</th>
               <th style={{ textAlign: "center" }}>Actions</th>
             </tr>
           </thead>

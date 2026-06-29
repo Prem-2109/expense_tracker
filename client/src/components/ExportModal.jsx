@@ -295,8 +295,8 @@ export default function ExportModal({ onClose, data }) {
             content: t.description.toUpperCase(),
             colSpan: 5,
             styles: {
-              fillColor: [74, 115, 189],
-              textColor: [255, 255, 255],
+              fillColor: [255, 255, 170],
+              textColor: [0, 0, 0],
               fontStyle: "bold",
               halign: "center",
             },
