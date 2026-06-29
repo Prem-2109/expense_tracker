@@ -314,12 +314,12 @@ export default function TransactionList2() {
                       )}
                     </td>
 
-                    <td style={{ textAlign: "right" }}>
+                    <td style={{ textAlign: "center" }}>
                       {isEditing ? (
                         <input
                           type="number"
                           className="et-edit-input"
-                          style={{ textAlign: "right" }}
+                          style={{ textAlign: "center" }}
                           value={editForm.income}
                           onChange={(e) =>
                             setEditForm({ ...editForm, income: e.target.value })
@@ -333,12 +333,12 @@ export default function TransactionList2() {
                       )}
                     </td>
 
-                    <td style={{ textAlign: "right" }}>
+                    <td style={{ textAlign: "center" }}>
                       {isEditing ? (
                         <input
                           type="number"
                           className="et-edit-input"
-                          style={{ textAlign: "right" }}
+                          style={{ textAlign: "center" }}
                           value={editForm.outgoing}
                           onChange={(e) =>
                             setEditForm({ ...editForm, outgoing: e.target.value })
@@ -352,7 +352,7 @@ export default function TransactionList2() {
                       )}
                     </td>
 
-                    <td style={{ textAlign: "right" }}>
+                    <td style={{ textAlign: "center" }}>
                       {formatCurrency(running)}
                     </td>
 

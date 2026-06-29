@@ -22,9 +22,9 @@ export default function TransactionList3() {
   const [editingId, setEditingId] = useState(null);
   const [editForm, setEditForm] = useState({ description: "", income: "", outgoing: "" });
   // Drag state
-const dragIdx = useRef(null);
-const [dragOverIdx, setDragOverIdx] = useState(null);
-const [isDragging, setIsDragging] = useState(false);
+  const dragIdx = useRef(null);
+  const [dragOverIdx, setDragOverIdx] = useState(null);
+  const [isDragging, setIsDragging] = useState(false);
   useEffect(() => {
     dispatch(fetchTable3());
   }, [dispatch]);
@@ -60,66 +60,66 @@ const [isDragging, setIsDragging] = useState(false);
     (a, b) => (a.sno ?? Infinity) - (b.sno ?? Infinity)
   );
   // Drag handlers
-const handleDragStart = (e, index) => {
-  dragIdx.current = index;
-  setIsDragging(true);
-  e.dataTransfer.effectAllowed = "move";
-  e.dataTransfer.setData("text/plain", index);
-};
+  const handleDragStart = (e, index) => {
+    dragIdx.current = index;
+    setIsDragging(true);
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", index);
+  };
 
-const handleDragOver = (e, index) => {
-  e.preventDefault();
-  e.dataTransfer.dropEffect = "move";
-  setDragOverIdx(index);
-};
+  const handleDragOver = (e, index) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    setDragOverIdx(index);
+  };
 
-const handleDragLeave = () => {
-  setDragOverIdx(null);
-};
+  const handleDragLeave = () => {
+    setDragOverIdx(null);
+  };
 
-const handleDrop = (e, dropIndex) => {
-  e.preventDefault();
+  const handleDrop = (e, dropIndex) => {
+    e.preventDefault();
 
-  const fromIndex = dragIdx.current;
+    const fromIndex = dragIdx.current;
 
-  if (fromIndex === null || fromIndex === dropIndex) {
+    if (fromIndex === null || fromIndex === dropIndex) {
+      setDragOverIdx(null);
+      setIsDragging(false);
+      return;
+    }
+
+    const newList = [...sortedList];
+
+    const [moved] = newList.splice(fromIndex, 1);
+
+    newList.splice(dropIndex, 0, moved);
+
+    const updated = newList.map((item, i) => ({
+      ...item,
+      sno: i + 1,
+    }));
+
+    dispatch(reorderLocal3(updated));
+
+    dispatch(
+      reorderTable3(
+        updated.map((item) => ({
+          id: item._id,
+          sno: item.sno,
+        }))
+      )
+    );
+
+    dragIdx.current = null;
     setDragOverIdx(null);
     setIsDragging(false);
-    return;
-  }
+  };
 
-  const newList = [...sortedList];
-
-  const [moved] = newList.splice(fromIndex, 1);
-
-  newList.splice(dropIndex, 0, moved);
-
-  const updated = newList.map((item, i) => ({
-    ...item,
-    sno: i + 1,
-  }));
-
-  dispatch(reorderLocal3(updated));
-
-  dispatch(
-    reorderTable3(
-      updated.map((item) => ({
-        id: item._id,
-        sno: item.sno,
-      }))
-    )
-  );
-
-  dragIdx.current = null;
-  setDragOverIdx(null);
-  setIsDragging(false);
-};
-
-const handleDragEnd = () => {
-  dragIdx.current = null;
-  setDragOverIdx(null);
-  setIsDragging(false);
-};
+  const handleDragEnd = () => {
+    dragIdx.current = null;
+    setDragOverIdx(null);
+    setIsDragging(false);
+  };
   let visibleSno = 1;
 
   const processedList = sortedList.map((item) => {
@@ -221,171 +221,171 @@ const handleDragEnd = () => {
             </tr>
           </thead>
           <tbody>
-                      {(() => {
-                        let running = 0;
-          
-                        return processedList.map((tx, index) => {
-                          const isEditing = tx._id === editingId;
-                          const isHeading = tx.isHeading;
-                          const isDragOver = dragOverIdx === index;
-                          const isDraggingThis = dragIdx.current === index;
-          
-                          const rowStyle = {
-                            opacity: isDraggingThis && isDragging ? 0.4 : 1,
-                            outline: isDragOver ? "2px dashed #6366f1" : "none",
-                            outlineOffset: "-2px",
-                            transition: "opacity 0.15s, outline 0.1s",
-                            cursor: "default",
-                          };
-          
-                          // HEADING ROW
-                          if (isHeading && !isEditing) {
-                            return (
-                              <tr
-                                key={tx._id}
-                                draggable
-                                onDragStart={(e) => handleDragStart(e, index)}
-                                onDragOver={(e) => handleDragOver(e, index)}
-                                onDragLeave={handleDragLeave}
-                                onDrop={(e) => handleDrop(e, index)}
-                                onDragEnd={handleDragEnd}
-                                style={rowStyle}
-                              >
-                                <td style={{ background: "#FFFFAA", cursor: "grab", textAlign: "center", padding: "8px 4px", fontSize: "16px", color: "rgba(0,0,0,0.6)" }}>
-                                  ⠿
-                                </td>
-                                <td style={{ background: "#FFFFAA" }}></td>
-                                <td
-                                  colSpan={4}
-                                  style={{
-                                    background: "#FFFFAA",
-                                    color: "#000",
-                                    fontWeight: "700",
-                                    textAlign: "center",
-                                    padding: "12px",
-                                    textTransform: "uppercase",
-                                  }}
-                                >
-                                  {tx.description}
-                                </td>
-          
-                                <td style={{ background: "#FFFFAA", textAlign: "center" }}>
-                                  <button className="et-edit-btn" onClick={() => handleStartEdit(tx)}>✏️</button>
-                                  <button className="et-delete-btn" onClick={() => dispatch(deleteTable3(tx._id))}>✕</button>
-                                </td>
-                              </tr>
-                            );
+            {(() => {
+              let running = 0;
+
+              return processedList.map((tx, index) => {
+                const isEditing = tx._id === editingId;
+                const isHeading = tx.isHeading;
+                const isDragOver = dragOverIdx === index;
+                const isDraggingThis = dragIdx.current === index;
+
+                const rowStyle = {
+                  opacity: isDraggingThis && isDragging ? 0.4 : 1,
+                  outline: isDragOver ? "2px dashed #6366f1" : "none",
+                  outlineOffset: "-2px",
+                  transition: "opacity 0.15s, outline 0.1s",
+                  cursor: "default",
+                };
+
+                // HEADING ROW
+                if (isHeading && !isEditing) {
+                  return (
+                    <tr
+                      key={tx._id}
+                      draggable
+                      onDragStart={(e) => handleDragStart(e, index)}
+                      onDragOver={(e) => handleDragOver(e, index)}
+                      onDragLeave={handleDragLeave}
+                      onDrop={(e) => handleDrop(e, index)}
+                      onDragEnd={handleDragEnd}
+                      style={rowStyle}
+                    >
+                      <td style={{ background: "#FFFFAA", cursor: "grab", textAlign: "center", padding: "8px 4px", fontSize: "16px", color: "rgba(0,0,0,0.6)" }}>
+                        ⠿
+                      </td>
+                      <td style={{ background: "#FFFFAA" }}></td>
+                      <td
+                        colSpan={4}
+                        style={{
+                          background: "#FFFFAA",
+                          color: "#000",
+                          fontWeight: "700",
+                          textAlign: "center",
+                          padding: "12px",
+                          textTransform: "uppercase",
+                        }}
+                      >
+                        {tx.description}
+                      </td>
+
+                      <td style={{ background: "#FFFFAA", textAlign: "center" }}>
+                        <button className="et-edit-btn" onClick={() => handleStartEdit(tx)}>✏️</button>
+                        <button className="et-delete-btn" onClick={() => dispatch(deleteTable3(tx._id))}>✕</button>
+                      </td>
+                    </tr>
+                  );
+                }
+
+                running += (tx.income || 0) - (tx.outgoing || 0);
+
+                return (
+                  <tr
+                    key={tx._id}
+                    draggable
+                    onDragStart={(e) => handleDragStart(e, index)}
+                    onDragOver={(e) => handleDragOver(e, index)}
+                    onDragLeave={handleDragLeave}
+                    onDrop={(e) => handleDrop(e, index)}
+                    onDragEnd={handleDragEnd}
+                    style={rowStyle}
+                  >
+                    {/* Drag handle cell */}
+                    <td style={{
+                      cursor: "grab",
+                      textAlign: "center",
+                      padding: "8px 4px",
+                      fontSize: "16px",
+                      color: "#475569",
+                      userSelect: "none",
+                    }}
+                      title="Drag to reorder"
+                    >
+                      ⠿
+                    </td>
+
+                    <td>
+                      {tx.displaySno && <span className="sno-badge">{tx.displaySno}</span>}
+                    </td>
+
+                    <td>
+                      {isEditing ? (
+                        <input
+                          type="text"
+                          className="et-edit-input"
+                          value={editForm.description}
+                          onChange={(e) =>
+                            setEditForm({ ...editForm, description: e.target.value })
                           }
-          
-                          running += (tx.income || 0) - (tx.outgoing || 0);
-          
-                          return (
-                            <tr
-                              key={tx._id}
-                              draggable
-                              onDragStart={(e) => handleDragStart(e, index)}
-                              onDragOver={(e) => handleDragOver(e, index)}
-                              onDragLeave={handleDragLeave}
-                              onDrop={(e) => handleDrop(e, index)}
-                              onDragEnd={handleDragEnd}
-                              style={rowStyle}
-                            >
-                              {/* Drag handle cell */}
-                              <td style={{
-                                cursor: "grab",
-                                textAlign: "center",
-                                padding: "8px 4px",
-                                fontSize: "16px",
-                                color: "#475569",
-                                userSelect: "none",
-                              }}
-                                title="Drag to reorder"
-                              >
-                                ⠿
-                              </td>
-          
-                              <td>
-                                {tx.displaySno && <span className="sno-badge">{tx.displaySno}</span>}
-                              </td>
-          
-                              <td>
-                                {isEditing ? (
-                                  <input
-                                    type="text"
-                                    className="et-edit-input"
-                                    value={editForm.description}
-                                    onChange={(e) =>
-                                      setEditForm({ ...editForm, description: e.target.value })
-                                    }
-                                    required
-                                  />
-                                ) : (
-                                  tx.description
-                                )}
-                              </td>
-          
-                              <td style={{ textAlign: "right" }}>
-                                {isEditing ? (
-                                  <input
-                                    type="number"
-                                    className="et-edit-input"
-                                    style={{ textAlign: "right" }}
-                                    value={editForm.income}
-                                    onChange={(e) =>
-                                      setEditForm({ ...editForm, income: e.target.value })
-                                    }
-                                    placeholder="0"
-                                  />
-                                ) : tx.income > 0 ? (
-                                  `+${formatCurrency(tx.income)}`
-                                ) : (
-                                  "—"
-                                )}
-                              </td>
-          
-                              <td style={{ textAlign: "right" }}>
-                                {isEditing ? (
-                                  <input
-                                    type="number"
-                                    className="et-edit-input"
-                                    style={{ textAlign: "right" }}
-                                    value={editForm.outgoing}
-                                    onChange={(e) =>
-                                      setEditForm({ ...editForm, outgoing: e.target.value })
-                                    }
-                                    placeholder="0"
-                                  />
-                                ) : tx.outgoing > 0 ? (
-                                  `-${formatCurrency(tx.outgoing)}`
-                                ) : (
-                                  "—"
-                                )}
-                              </td>
-          
-                              <td style={{ textAlign: "right" }}>
-                                {formatCurrency(running)}
-                              </td>
-          
-                              <td>
-                                <div style={{ display: "flex", gap: "6px", justifyContent: "center", alignItems: "center" }}>
-                                  {isEditing ? (
-                                    <>
-                                      <button className="et-save-btn" onClick={() => handleSaveEdit(tx._id)} title="Save">💾</button>
-                                      <button className="et-cancel-btn" onClick={handleCancelEdit} title="Cancel">✕</button>
-                                    </>
-                                  ) : (
-                                    <>
-                                      <button className="et-edit-btn" onClick={() => handleStartEdit(tx)} title="Edit">✏️</button>
-                                      <button className="et-delete-btn" onClick={() => dispatch(deleteTable3(tx._id))} title="Delete">✕</button>
-                                    </>
-                                  )}
-                                </div>
-                              </td>
-                            </tr>
-                          );
-                        });
-                      })()}
-                    </tbody>
+                          required
+                        />
+                      ) : (
+                        tx.description
+                      )}
+                    </td>
+
+                    <td style={{ textAlign: "center" }}>
+                      {isEditing ? (
+                        <input
+                          type="number"
+                          className="et-edit-input"
+                          style={{ textAlign: "center" }}
+                          value={editForm.income}
+                          onChange={(e) =>
+                            setEditForm({ ...editForm, income: e.target.value })
+                          }
+                          placeholder="0"
+                        />
+                      ) : tx.income > 0 ? (
+                        `+${formatCurrency(tx.income)}`
+                      ) : (
+                        "—"
+                      )}
+                    </td>
+
+                    <td style={{ textAlign: "center" }}>
+                      {isEditing ? (
+                        <input
+                          type="number"
+                          className="et-edit-input"
+                          style={{ textAlign: "center" }}
+                          value={editForm.outgoing}
+                          onChange={(e) =>
+                            setEditForm({ ...editForm, outgoing: e.target.value })
+                          }
+                          placeholder="0"
+                        />
+                      ) : tx.outgoing > 0 ? (
+                        `-${formatCurrency(tx.outgoing)}`
+                      ) : (
+                        "—"
+                      )}
+                    </td>
+
+                    <td style={{ textAlign: "center" }}>
+                      {formatCurrency(running)}
+                    </td>
+
+                    <td>
+                      <div style={{ display: "flex", gap: "6px", justifyContent: "center", alignItems: "center" }}>
+                        {isEditing ? (
+                          <>
+                            <button className="et-save-btn" onClick={() => handleSaveEdit(tx._id)} title="Save">💾</button>
+                            <button className="et-cancel-btn" onClick={handleCancelEdit} title="Cancel">✕</button>
+                          </>
+                        ) : (
+                          <>
+                            <button className="et-edit-btn" onClick={() => handleStartEdit(tx)} title="Edit">✏️</button>
+                            <button className="et-delete-btn" onClick={() => dispatch(deleteTable3(tx._id))} title="Delete">✕</button>
+                          </>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              });
+            })()}
+          </tbody>
         </table>
       </div>
 
