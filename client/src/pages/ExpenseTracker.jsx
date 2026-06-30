@@ -6,6 +6,8 @@ import TransactionForm2 from "../components/TransactionForm2.jsx";
 import TransactionList2 from "../features/transactions/TransactionList2.jsx";
 import TransactionForm3 from "../components/TransactionForm3.jsx";
 import TransactionList3 from "../features/transactions/TransactionList3.jsx";
+import TransactionForm4 from "../components/TransactionForm4.jsx";
+import TransactionList4 from "../features/transactions/TransactionList4.jsx";
 import Footer from "../components/Footer.jsx";
 import ExportModal from "../components/ExportModal.jsx";
 import { Link } from "react-router-dom";
@@ -14,32 +16,35 @@ const TABS = [
     { id: 1, label: "Suresh To Durai", icon: "📊" },
     { id: 2, label: "Suresh To Swamy", icon: "📈" },
     { id: 3, label: "Suresh To Sunder", icon: "📉" },
+    { id: 4, label: "Travel Expenses", icon: "🌍" },
 ];
 
 function App() {
     const { list: list1 } = useSelector((state) => state.transactions);
     const { list: list2 } = useSelector((state) => state.table2);
     const { list: list3 } = useSelector((state) => state.table3);
-
+    const { list: list4 } = useSelector((state) => state.table4);
     const [open, setOpen] = useState(false);
     const [activeTab, setActiveTab] = useState(1);
 
     // Get data for active tab
-    const activeList = activeTab === 1 ? list1 : activeTab === 2 ? list2 : list3;
+    const activeList = activeTab === 1 ? list1 : activeTab === 2 ? list2 : activeTab === 3 ? list3 : list4;
     const hasData = activeList && activeList.length > 0;
 
     // Render form based on active tab
     const renderForm = () => {
         if (activeTab === 1) return <TransactionForm />;
         if (activeTab === 2) return <TransactionForm2 />;
-        return <TransactionForm3 />;
+        if (activeTab === 3) return <TransactionForm3 />;
+        return <TransactionForm4 />;
     };
 
     // Render list based on active tab
     const renderList = () => {
         if (activeTab === 1) return <TransactionList />;
         if (activeTab === 2) return <TransactionList2 />;
-        return <TransactionList3 />;
+        if (activeTab === 3) return <TransactionList3 />;
+        return <TransactionList4 />;
     };
 
     return (
