@@ -13,10 +13,10 @@ import ExportModal from "../components/ExportModal.jsx";
 import { Link } from "react-router-dom";
 
 const TABS = [
-    { id: 1, label: "Suresh To Durai", icon: "📊" },
-    { id: 2, label: "Suresh To Swamy", icon: "📈" },
-    { id: 3, label: "Suresh To Sunder", icon: "📉" },
-    { id: 4, label: "Travel Expenses", icon: "🌍" },
+    { id: 1, label: "Suresh To Durai", icon: "💸" },
+    { id: 2, label: "Suresh To Swamy", icon: "💸" },
+    { id: 3, label: "Suresh To Sunder", icon: "💸" },
+    // { id: 4, label: "Travel Expenses", icon: "✈️" },
 ];
 
 function App() {
@@ -62,7 +62,19 @@ function App() {
                             </p>
                         </div>
                     </div>
-                    <div className="header-logo">
+                    <div className="header-logo" style={{ display: 'flex', gap: '20px' }}>
+                        <Link
+                            to="/dashboard"
+                            style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "10px",
+                                textDecoration: "none",
+                                color: "inherit",
+                            }}
+                        >
+                            <div className="logo-icon">📊</div>
+                        </Link>
                         <Link
                             to="/quotation-generator"
                             style={{
@@ -74,12 +86,6 @@ function App() {
                             }}
                         >
                             <div className="logo-icon">QG</div>
-                            {/* <div>
-                                <h3 style={{ margin: 0 }}>Quotation Generator</h3>
-                                <p style={{ margin: 0, fontSize: "12px" }}>
-                                    Real Estate Calculator
-                                </p>
-                            </div> */}
                         </Link>
                     </div>
                 </div>
