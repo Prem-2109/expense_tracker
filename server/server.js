@@ -29,6 +29,9 @@ app.use("/api/table2", table2Routes);
 const table3Routes = require("./routes/table3");
 app.use("/api/table3", table3Routes);
 
+const table4Routes = require("./routes/table4");
+app.use("/api/table4", table4Routes);
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
