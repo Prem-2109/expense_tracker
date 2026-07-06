@@ -18,7 +18,7 @@ import {
 const TABS = [
     { id: 1, label: "Suresh To Durai", icon: "💰" },
     { id: 2, label: "Suresh To Swamy", icon: "💸" },
-    { id: 3, label: "Suresh To Sunder", icon: "🏦" },
+    { id: 3, label: "Suresh To Sundar", icon: "🏦" },
     { id: 4, label: "Suresh To Vijay", icon: "💸" },
 ];
 
