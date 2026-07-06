@@ -3,32 +3,30 @@ import { Link } from "react-router-dom";
 import { jsPDF } from "jspdf";
 
 export default function QuotationGenerator() {
-    const [clientName, setClientName] = useState("");
-    const [ownerRate, setOwnerRate] = useState("");
-    const [commission, setCommission] = useState("");
-    const [power, setPower] = useState("");
-    const [patta, setPatta] = useState("");
-    const [sharing, setSharing] = useState("");
+    const [totalArea, setTotalArea] = useState("");
+    const [ratePerSqft, setRatePerSqft] = useState("");
+    const [owners, setOwners] = useState("");
 
-    const ownerRateVal = Number(ownerRate) || 0;
-    const commissionVal = Number(commission) || 0;
-    const powerVal = Number(power) || 0;
-    const pattaVal = Number(patta) || 0;
-    const sharingCount = Number(sharing) || 0;
+    const area = Number(totalArea) || 0;
+    const rate = Number(ratePerSqft) || 0;
+    const ownerCount = Number(owners) || 0;
 
-    const totalValue = ownerRateVal + commissionVal + powerVal + pattaVal;
-    const valuePerShare = sharingCount ? totalValue / sharingCount : 0;
+    const totalValue = area * rate;
+    const sharePerOwner = ownerCount ? area / ownerCount : 0;
+    const valuePerOwner = ownerCount ? totalValue / ownerCount : 0;
 
     const formatCurrency = (value) =>
-        new Intl.NumberFormat("en-IN").format(Math.round(value));
+        new Intl.NumberFormat("en-IN").format(value);
 
     const downloadPDF = () => {
         const doc = new jsPDF("p", "mm", "a4");
 
-        const total = ownerRateVal + commissionVal + powerVal + pattaVal;
-        const perShare = sharingCount ? total / sharingCount : 0;
+        const totalValue = area * rate;
+        const sharePerOwner = ownerCount ? area / ownerCount : 0;
+        const valuePerOwner = ownerCount ? totalValue / ownerCount : 0;
 
-        const fmt = (value) => new Intl.NumberFormat("en-IN").format(Math.round(value));
+        const formatCurrency = (value) =>
+            new Intl.NumberFormat("en-IN").format(value);
 
         const today = new Date().toLocaleDateString("en-GB");
         const docId = `SMC-Q-${new Date().getFullYear()}-${String(
@@ -41,17 +39,22 @@ export default function QuotationGenerator() {
         doc.rect(8, 8, 194, 281);
 
         // ---- LOGO SECTION (Vector Art) ----
+        // Draw deep indigo background shield/box for the logo
         doc.setFillColor(30, 58, 138); // blue-900
         doc.roundedRect(15, 15, 20, 20, 3, 3, "F");
 
+        // Stylized vector house shape inside logo box (white lines)
         doc.setDrawColor(255, 255, 255);
         doc.setLineWidth(1.2);
-
+        
+        // Roof: Peak at (25, 19), Left (19, 25), Right (31, 25)
         doc.line(25, 19, 19, 25);
         doc.line(25, 19, 31, 25);
+        // Base structure: Left Wall (21, 25)->(21, 31), Right Wall (29, 25)->(29, 31), Bottom (21, 31)->(29, 31)
         doc.line(21, 25, 21, 31);
         doc.line(29, 25, 29, 31);
         doc.line(21, 31, 29, 31);
+        // Window/Detail: Small square in middle (24, 25) to (26, 27)
         doc.line(24, 25, 26, 25);
         doc.line(24, 27, 26, 27);
         doc.line(24, 25, 24, 27);
@@ -67,7 +70,7 @@ export default function QuotationGenerator() {
         doc.setFontSize(9);
         doc.setTextColor(100, 116, 139); // slate-500
         doc.text("Building Trust Through Quality Construction", 40, 28);
-
+        
         doc.setFontSize(8);
         doc.text("Real Estate • Construction • Property Development", 40, 32);
 
@@ -117,7 +120,7 @@ export default function QuotationGenerator() {
         doc.text("Client / Purpose:", 105, 62);
         doc.setFont("helvetica", "normal");
         doc.setTextColor(15, 23, 42);
-        doc.text(clientName || "Official Joint Share Valuation Copy", 132, 62);
+        doc.text("Official Joint Share Valuation Copy", 132, 62);
 
         doc.setFont("helvetica", "bold");
         doc.setTextColor(71, 85, 105);
@@ -149,7 +152,7 @@ export default function QuotationGenerator() {
                 doc.setLineWidth(0.3);
                 doc.line(15, y, 195, y);
                 doc.line(15, y + 11, 195, y + 11);
-
+                
                 doc.setTextColor(6, 95, 70); // deep green
                 doc.setFont("helvetica", "bold");
                 doc.setFontSize(9.5);
@@ -157,7 +160,7 @@ export default function QuotationGenerator() {
                 const isEven = (y / 10) % 2 === 0;
                 doc.setFillColor(isEven ? 255 : 248, isEven ? 255 : 250, isEven ? 255 : 252);
                 doc.rect(15, y, 180, 10, "F");
-
+                
                 doc.setTextColor(51, 65, 85); // slate-700
                 doc.setFont("helvetica", highlight ? "bold" : "normal");
                 doc.setFontSize(9);
@@ -170,26 +173,25 @@ export default function QuotationGenerator() {
         };
 
         // Section 1
-        sectionHeader("1. VALUATION BREAKDOWN");
-        row("Owner Rate", `Rs. ${fmt(ownerRateVal)}`);
-        row("Commission", `Rs. ${fmt(commissionVal)}`);
-        row("Power", `Rs. ${fmt(powerVal)}`);
-        row("Patta", `Rs. ${fmt(pattaVal)}`);
-        row("Total Estimated Value", `Rs. ${fmt(total)}`, true, true);
+        sectionHeader("1. PROPERTY VALUATION BREAKDOWN");
+        row("Total Property Area", `${area} Sq.Ft`);
+        row("Base Rate Per Sq.Ft", `Rs. ${formatCurrency(rate)}`);
+        row("Estimated Market Value", `Rs. ${formatCurrency(totalValue)}`, true, true);
 
         y += 10;
 
         // Section 2
         sectionHeader("2. OWNERSHIP & SHARE SPLITS");
-        row("Number of Sharing", sharingCount.toString());
-        row("Value Per Sharing", `Rs. ${fmt(perShare)}`, true, true);
+        row("Total Number of Partners / Owners", ownerCount.toString());
+        row("Land / Area Share Per Owner", `${sharePerOwner.toFixed(2)} Sq.Ft`);
+        row("Financial Stake Value Per Owner", `Rs. ${formatCurrency(valuePerOwner)}`, true, true);
 
         // Footnote & Disclaimer
         y += 15;
         doc.setFont("helvetica", "italic");
         doc.setFontSize(7.5);
         doc.setTextColor(148, 163, 184); // slate-400
-
+        
         const noteText = [
             "Disclaimer: This document is an estimate based on values supplied by the user. Actual valuation",
             "may vary depending on property location, road widths, materials used, local zoning rules, and final agreement."
@@ -206,7 +208,7 @@ export default function QuotationGenerator() {
         doc.setFontSize(8.5);
         doc.setTextColor(51, 65, 85); // slate-700
         doc.text("Authorized Signatory", 167.5, 265, { align: "center" });
-
+        
         doc.setFont("helvetica", "bold");
         doc.setFontSize(8);
         doc.setTextColor(30, 58, 138); // blue-900
@@ -217,13 +219,10 @@ export default function QuotationGenerator() {
         doc.setTextColor(148, 163, 184); // slate-400
         doc.text(`System Generated Document - ${today}`, 15, 270);
 
-        const safeClient = (clientName || "Client").replace(/[^a-z0-9]+/gi, "_");
         doc.save(
-            `SMC_Quotation_${safeClient}_${today.replace(/\//g, "-")}.pdf`
+            `SMC_Property_Quotation_${today.replace(/\//g, "-")}.pdf`
         );
     };
-
-    const isReady = ownerRate && sharingCount > 0;
 
     return (
         <div style={{ minHeight: "100vh", background: "#020617", padding: "40px 20px", fontFamily: "'Inter', system-ui, sans-serif" }}>
@@ -261,38 +260,51 @@ export default function QuotationGenerator() {
                         <h3 style={{ margin: "0 0 20px", fontSize: "16px", fontWeight: "700", color: "#e2e8f0", display: "flex", alignItems: "center", gap: "8px", borderBottom: "1px solid #1e293b", paddingBottom: "14px" }}>
                             📝 Valuation Specifications
                         </h3>
-
-                        <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginBottom: "16px" }}>
-                            <label style={{ fontSize: "11px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "1px", color: "#94a3b8" }}>
-                                Client Name
-                            </label>
-                            <input
-                                type="text"
-                                placeholder="e.g. Sri Muruthu Traders"
-                                value={clientName}
-                                onChange={(e) => setClientName(e.target.value)}
-                                style={inputStyle}
-                                onFocus={e => e.target.style.borderColor = "#6366f1"}
-                                onBlur={e => e.target.style.borderColor = "#475569"}
-                            />
-                        </div>
-
+                        
                         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: "16px" }}>
-                            <MoneyField label="Owner Rate" placeholder="e.g. 2350000" value={ownerRate} onChange={setOwnerRate} />
-                            <MoneyField label="Commission" placeholder="e.g. 60000" value={commission} onChange={setCommission} />
-                            <MoneyField label="Power" placeholder="e.g. 24000" value={power} onChange={setPower} />
-                            <MoneyField label="Patta" placeholder="e.g. 5000" value={patta} onChange={setPatta} />
+                            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                                <label style={{ fontSize: "11px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "1px", color: "#94a3b8" }}>
+                                    Total Area (Sq.Ft)
+                                </label>
+                                <input
+                                    type="number"
+                                    placeholder="e.g. 2400"
+                                    value={totalArea}
+                                    onChange={(e) => setTotalArea(e.target.value)}
+                                    style={{ width: "100%", background: "#1e293b", border: "1.5px solid #475569", borderRadius: "12px", padding: "12px 16px", fontSize: "16px", fontWeight: "600", color: "#f1f5f9", outline: "none", boxSizing: "border-box", fontFamily: "inherit" }}
+                                    onFocus={e => e.target.style.borderColor = "#6366f1"}
+                                    onBlur={e => e.target.style.borderColor = "#475569"}
+                                />
+                            </div>
 
                             <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                                 <label style={{ fontSize: "11px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "1px", color: "#94a3b8" }}>
-                                    Number of Sharing
+                                    Rate Per Sq.Ft
+                                </label>
+                                <div style={{ position: "relative" }}>
+                                    <span style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)", color: "#64748b", fontWeight: "600", fontSize: "14px" }}>₹</span>
+                                    <input
+                                        type="number"
+                                        placeholder="e.g. 4500"
+                                        value={ratePerSqft}
+                                        onChange={(e) => setRatePerSqft(e.target.value)}
+                                        style={{ width: "100%", background: "#1e293b", border: "1.5px solid #475569", borderRadius: "12px", padding: "12px 16px 12px 28px", fontSize: "16px", fontWeight: "600", color: "#f1f5f9", outline: "none", boxSizing: "border-box", fontFamily: "inherit" }}
+                                        onFocus={e => e.target.style.borderColor = "#6366f1"}
+                                        onBlur={e => e.target.style.borderColor = "#475569"}
+                                    />
+                                </div>
+                            </div>
+
+                            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                                <label style={{ fontSize: "11px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "1px", color: "#94a3b8" }}>
+                                    Number of Owners
                                 </label>
                                 <input
                                     type="number"
                                     placeholder="e.g. 3"
-                                    value={sharing}
-                                    onChange={(e) => setSharing(e.target.value)}
-                                    style={inputStyle}
+                                    value={owners}
+                                    onChange={(e) => setOwners(e.target.value)}
+                                    style={{ width: "100%", background: "#1e293b", border: "1.5px solid #475569", borderRadius: "12px", padding: "12px 16px", fontSize: "16px", fontWeight: "600", color: "#f1f5f9", outline: "none", boxSizing: "border-box", fontFamily: "inherit" }}
                                     onFocus={e => e.target.style.borderColor = "#6366f1"}
                                     onBlur={e => e.target.style.borderColor = "#475569"}
                                 />
@@ -303,13 +315,13 @@ export default function QuotationGenerator() {
                     {/* Total Value Display Box */}
                     <div style={{ background: "linear-gradient(145deg, #0f2a1e, #0d1f1a)", border: "1px solid #166534", borderRadius: "20px", padding: "28px", textAlign: "center", boxShadow: "0 8px 32px rgba(16,185,129,0.1), 0 2px 8px rgba(0,0,0,0.4)", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
                         <span style={{ fontSize: "11px", fontWeight: "700", letterSpacing: "2px", color: "#6ee7b7", textTransform: "uppercase", display: "block", marginBottom: "12px" }}>
-                            Total Estimated Value
+                            Estimated Property Value
                         </span>
                         <h2 style={{ margin: 0, fontSize: "clamp(28px, 5vw, 48px)", fontWeight: "900", color: "#34d399", letterSpacing: "-1px", textShadow: "0 0 30px rgba(52,211,153,0.25)" }}>
                             ₹ {formatCurrency(totalValue)}
                         </h2>
                         <div style={{ marginTop: "10px", fontSize: "12px", color: "#4ade80", fontWeight: "500", opacity: 0.7 }}>
-                            Owner Rate + Commission + Power + Patta
+                            {area || 0} Sq.Ft × ₹{rate || 0}/Sq.Ft
                         </div>
                     </div>
                 </div>
@@ -319,14 +331,13 @@ export default function QuotationGenerator() {
                     <h3 style={{ margin: 0, fontSize: "16px", fontWeight: "700", color: "#e2e8f0", display: "flex", alignItems: "center", gap: "8px" }}>
                         📊 Summary &amp; Share Splits
                     </h3>
-
+                    
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: "14px" }}>
-                        <SummaryCard title="Owner Rate" value={`₹ ${formatCurrency(ownerRateVal)}`} icon="🏠" accent="#3b82f6" accentBg="#1e3a5f" />
-                        <SummaryCard title="Commission" value={`₹ ${formatCurrency(commissionVal)}`} icon="🤝" accent="#818cf8" accentBg="#1e1b4b" />
-                        <SummaryCard title="Power" value={`₹ ${formatCurrency(powerVal)}`} icon="⚡" accent="#fbbf24" accentBg="#3a2e0f" />
-                        <SummaryCard title="Patta" value={`₹ ${formatCurrency(pattaVal)}`} icon="📜" accent="#c084fc" accentBg="#2d1b4e" />
-                        <SummaryCard title="Number of Sharing" value={sharingCount || 0} icon="👥" accent="#2dd4bf" accentBg="#0f2c2c" />
-                        <SummaryCard title="Value Per Sharing" value={`₹ ${formatCurrency(valuePerShare)}`} icon="📄" accent="#34d399" accentBg="#0d2e1e" />
+                        <SummaryCard title="Total Area" value={`${area} Sq.Ft`} icon="📐" accent="#3b82f6" accentBg="#1e3a5f" />
+                        <SummaryCard title="Rate Per Sq.Ft" value={`₹ ${formatCurrency(rate)}`} icon="💰" accent="#818cf8" accentBg="#1e1b4b" />
+                        <SummaryCard title="Owners" value={ownerCount} icon="👥" accent="#c084fc" accentBg="#2d1b4e" />
+                        <SummaryCard title="Share Per Owner" value={`${sharePerOwner.toFixed(2)} Sq.Ft`} icon="🏠" accent="#2dd4bf" accentBg="#0f2c2c" />
+                        <SummaryCard title="Value Per Owner" value={`₹ ${formatCurrency(valuePerOwner)}`} icon="📄" accent="#34d399" accentBg="#0d2e1e" />
                     </div>
                 </div>
 
@@ -334,14 +345,14 @@ export default function QuotationGenerator() {
                 <div style={{ display: "flex", justifyContent: "center", paddingTop: "8px" }}>
                     <button
                         onClick={downloadPDF}
-                        disabled={!isReady}
+                        disabled={!area || !rate || !ownerCount}
                         style={{
                             display: "flex", alignItems: "center", gap: "12px",
-                            background: !isReady ? "#1e293b" : "linear-gradient(135deg, #059669, #16a34a)",
-                            color: !isReady ? "#475569" : "#fff",
+                            background: (!area || !rate || !ownerCount) ? "#1e293b" : "linear-gradient(135deg, #059669, #16a34a)",
+                            color: (!area || !rate || !ownerCount) ? "#475569" : "#fff",
                             border: "none", borderRadius: "16px", padding: "18px 48px",
-                            fontSize: "16px", fontWeight: "700", cursor: !isReady ? "not-allowed" : "pointer",
-                            boxShadow: !isReady ? "none" : "0 8px 32px rgba(16,185,129,0.3)",
+                            fontSize: "16px", fontWeight: "700", cursor: (!area || !rate || !ownerCount) ? "not-allowed" : "pointer",
+                            boxShadow: (!area || !rate || !ownerCount) ? "none" : "0 8px 32px rgba(16,185,129,0.3)",
                             transition: "all 0.2s", fontFamily: "inherit"
                         }}
                     >
@@ -366,42 +377,6 @@ export default function QuotationGenerator() {
                         <span>Property Development</span>
                     </div>
                 </div>
-            </div>
-        </div>
-    );
-}
-
-const inputStyle = {
-    width: "100%",
-    background: "#1e293b",
-    border: "1.5px solid #475569",
-    borderRadius: "12px",
-    padding: "12px 16px",
-    fontSize: "16px",
-    fontWeight: "600",
-    color: "#f1f5f9",
-    outline: "none",
-    boxSizing: "border-box",
-    fontFamily: "inherit"
-};
-
-function MoneyField({ label, placeholder, value, onChange }) {
-    return (
-        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-            <label style={{ fontSize: "11px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "1px", color: "#94a3b8" }}>
-                {label}
-            </label>
-            <div style={{ position: "relative" }}>
-                <span style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)", color: "#64748b", fontWeight: "600", fontSize: "14px" }}>₹</span>
-                <input
-                    type="number"
-                    placeholder={placeholder}
-                    value={value}
-                    onChange={(e) => onChange(e.target.value)}
-                    style={{ ...inputStyle, padding: "12px 16px 12px 28px" }}
-                    onFocus={e => e.target.style.borderColor = "#6366f1"}
-                    onBlur={e => e.target.style.borderColor = "#475569"}
-                />
             </div>
         </div>
     );
