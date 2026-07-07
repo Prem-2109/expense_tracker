@@ -3,6 +3,7 @@ import transactionReducer from "../features/transactions/transactionSlice.js";
 import table2Reducer from "../features/transactions/table2Slice.js";
 import table3Reducer from "../features/transactions/table3Slice.js";
 import table4Reducer from "../features/transactions/table4Slice.js";
+import table5Reducer from "../features/transactions/table5Slice.js";
 
 export const store = configureStore({
   reducer: {
@@ -10,5 +11,6 @@ export const store = configureStore({
     table2: table2Reducer,
     table3: table3Reducer,
     table4: table4Reducer,
+    table5: table5Reducer,
   },
 });
