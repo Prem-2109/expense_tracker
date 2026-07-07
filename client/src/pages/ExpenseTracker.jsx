@@ -30,6 +30,7 @@ function App() {
     const { list: list5 } = useSelector((state) => state.table5);
     const [open, setOpen] = useState(false);
     const [activeTab, setActiveTab] = useState(1);
+    // const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     // Get data for active tab
     const activeList = activeTab === 1 ? list1 : activeTab === 2 ? list2 : activeTab === 3 ? list3 : activeTab === 4 ? list4 : list5;
@@ -55,48 +56,6 @@ function App() {
 
     return (
         <div className="app-shell">
-
-            {/* ── Header ───────────────────────────────────────── */}
-            <header className="app-header">
-                <div className="header-inner">
-                    <div className="header-logo">
-                        <div className="logo-icon">₹</div>
-                        <div>
-                            <h1 className="header-title">Expense Tracker</h1>
-                            <p className="header-subtitle">
-                                Track income & expenses effortlessly
-                            </p>
-                        </div>
-                    </div>
-                    <div className="header-logo" style={{ display: 'flex', gap: '20px' }}>
-                        <Link
-                            to="/dashboard"
-                            style={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "10px",
-                                textDecoration: "none",
-                                color: "inherit",
-                            }}
-                        >
-                            <div className="logo-icon">📊</div>
-                        </Link>
-                        <Link
-                            to="/quotation-generator"
-                            style={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "10px",
-                                textDecoration: "none",
-                                color: "inherit",
-                            }}
-                        >
-                            <div className="logo-icon">QG</div>
-                        </Link>
-                    </div>
-                </div>
-            </header>
-
             {/* ── Tab Navigation ───────────────────────────────── */}
             <nav className="tab-nav">
                 <div className="tab-nav-inner">

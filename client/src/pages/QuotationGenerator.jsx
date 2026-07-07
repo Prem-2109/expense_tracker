@@ -229,14 +229,14 @@ export default function QuotationGenerator() {
         <div style={{ minHeight: "100vh", background: "#020617", padding: "40px 20px", fontFamily: "'Inter', system-ui, sans-serif" }}>
             <div style={{ maxWidth: "1100px", margin: "0 auto", display: "flex", flexDirection: "column", gap: "28px" }}>
                 {/* Back Nav Link */}
-                <div>
+                {/* <div>
                     <Link
                         to="/"
                         style={{ color: "#818cf8", textDecoration: "none", fontWeight: "600", fontSize: "14px", display: "inline-flex", alignItems: "center", gap: "6px" }}
                     >
                         ← Back to Expense Tracker
                     </Link>
-                </div>
+                </div> */}
 
                 {/* Hero Header */}
                 <div style={{ background: "linear-gradient(135deg, #1e3a8a 0%, #1e1b4b 50%, #312e81 100%)", borderRadius: "24px", padding: "32px 36px", boxShadow: "0 20px 60px rgba(99,102,241,0.25)", border: "1px solid rgba(99,102,241,0.3)", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "16px" }}>

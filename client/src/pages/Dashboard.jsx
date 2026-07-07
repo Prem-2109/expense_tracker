@@ -115,7 +115,7 @@ export default function Dashboard() {
 
   return (
     <div className="app-shell" style={{ overflowY: 'auto', backgroundColor: '#020617', minHeight: '100vh', color: '#f8fafc' }}>
-      <header className="app-header" style={{ borderBottom: '1px solid #1e293b', backgroundColor: '#020617', padding: '16px 0' }}>
+      {/* <header className="app-header" style={{ borderBottom: '1px solid #1e293b', backgroundColor: '#020617', padding: '16px 0' }}>
         <div className="header-inner" style={{ padding: '0 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div className="header-logo">
             <Link to="/" style={{ textDecoration: 'none', color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -129,7 +129,7 @@ export default function Dashboard() {
             <h1 className="header-title" style={{ fontSize: '1.25rem', margin: 0, color: '#f8fafc', fontWeight: 600 }}>Financial Dashboard</h1>
           </div>
         </div>
-      </header>
+      </header> */}
 
       <main className="app-main" style={{ padding: '24px', maxWidth: '1400px', margin: '0 auto', width: '100%' }}>
         
