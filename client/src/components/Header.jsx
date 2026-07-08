@@ -54,39 +54,46 @@ export default function Header() {
         <button
           className="mobile-menu-toggle"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          aria-label="Toggle menu"
         >
-          ☰
+          <span className={`hamburger-bar ${mobileMenuOpen ? "open" : ""}`}></span>
+          <span className={`hamburger-bar ${mobileMenuOpen ? "open" : ""}`}></span>
+          <span className={`hamburger-bar ${mobileMenuOpen ? "open" : ""}`}></span>
         </button>
       </div>
 
       {/* Mobile Navigation */}
-      {mobileMenuOpen && (
-        <div className="mobile-nav">
-          <NavLink
-            to="/"
-            className="mobile-nav-link"
-            onClick={() => setMobileMenuOpen(false)}
-          >
-            💸 Tracker
-          </NavLink>
+      <div className={`mobile-nav ${mobileMenuOpen ? "show" : ""}`}>
+        <NavLink
+          to="/"
+          className={({ isActive }) =>
+            isActive ? "mobile-nav-link active" : "mobile-nav-link"
+          }
+          onClick={() => setMobileMenuOpen(false)}
+        >
+          💸 Tracker
+        </NavLink>
 
-          <NavLink
-            to="/dashboard"
-            className="mobile-nav-link"
-            onClick={() => setMobileMenuOpen(false)}
-          >
-            📊 Dashboard
-          </NavLink>
+        <NavLink
+          to="/dashboard"
+          className={({ isActive }) =>
+            isActive ? "mobile-nav-link active" : "mobile-nav-link"
+          }
+          onClick={() => setMobileMenuOpen(false)}
+        >
+          📊 Dashboard
+        </NavLink>
 
-          <NavLink
-            to="/quotation-generator"
-            className="mobile-nav-link"
-            onClick={() => setMobileMenuOpen(false)}
-          >
-            📝 Quotation
-          </NavLink>
-        </div>
-      )}
+        <NavLink
+          to="/quotation-generator"
+          className={({ isActive }) =>
+            isActive ? "mobile-nav-link active" : "mobile-nav-link"
+          }
+          onClick={() => setMobileMenuOpen(false)}
+        >
+          📝 Quotation
+        </NavLink>
+      </div>
     </header>
   );
 }
