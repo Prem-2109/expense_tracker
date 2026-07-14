@@ -19,7 +19,7 @@ const TABS = [
   { id: 2, label: "Suresh To Swamy", icon: "💰" },   // Payment
   { id: 3, label: "Suresh To Sundar", icon: "📤" },  // Outgoing
   { id: 4, label: "Suresh To Vijay", icon: "🏦" },   // Bank/Settlement
-  //{ id: 5, label: "Travel Expenses", icon: "✈️" },   // Travel
+  { id: 5, label: "Travel Expenses", icon: "✈️" },   // Travel
 ];
 
 function App() {

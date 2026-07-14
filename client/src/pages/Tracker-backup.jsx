@@ -293,7 +293,7 @@ function App() {
     }, [closeSidebar]);
 
     // Get data for active tab
-    const activeList = activeTab === 1 ? list1 : activeTab === 2 ? list2 : activeTab === 3 ? list3 : list4;
+    const activeList = activeTab === 1 ? list1 : activeTab === 2 ? list2 : activeTab === 3 ? list3 : activeTab === 4 ? list4 : list5;
     const hasData = activeList && activeList.length > 0;
 
     // Compute summary stats for active tab

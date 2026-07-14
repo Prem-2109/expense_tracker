@@ -22,7 +22,7 @@ const TABS = [
   { id: 2, label: "Suresh To Swamy", icon: "💰" },   // Payment
   { id: 3, label: "Suresh To Sundar", icon: "📤" },  // Outgoing
   { id: 4, label: "Suresh To Vijay", icon: "🏦" },   // Bank/Settlement
-  //{ id: 5, label: "Travel Expenses", icon: "✈️" },   // Travel
+  { id: 5, label: "Travel Expenses", icon: "✈️" },   // Travel
 ];
 
 const SIDEBAR_LINKS = [
@@ -36,23 +36,41 @@ const SIDEBAR_LINKS = [
 ];
 
 /* ── Mini chart mock data ─────────────────────────── */
-const miniIncomeData = [{ v: 40 }, { v: 30 }, { v: 55 }, { v: 35 }, { v: 60 }, { v: 50 }, { v: 70 }, { v: 80 }];
-const miniExpenseData = [{ v: 30 }, { v: 45 }, { v: 25 }, { v: 50 }, { v: 40 }, { v: 60 }, { v: 55 }, { v: 70 }];
-const miniBalanceData = [{ v: 15 }, { v: 20 }, { v: 30 }, { v: 25 }, { v: 45 }, { v: 40 }, { v: 55 }, { v: 65 }];
-const miniCountData = [{ v: 3 }, { v: 5 }, { v: 2 }, { v: 7 }, { v: 4 }, { v: 6 }, { v: 8 }, { v: 5 }];
+// const miniIncomeData = [{ v: 40 }, { v: 30 }, { v: 55 }, { v: 35 }, { v: 60 }, { v: 50 }, { v: 70 }, { v: 80 }];
+// const miniExpenseData = [{ v: 30 }, { v: 45 }, { v: 25 }, { v: 50 }, { v: 40 }, { v: 60 }, { v: 55 }, { v: 70 }];
+// const miniBalanceData = [{ v: 15 }, { v: 20 }, { v: 30 }, { v: 25 }, { v: 45 }, { v: 40 }, { v: 55 }, { v: 65 }];
+// const miniCountData = [{ v: 3 }, { v: 5 }, { v: 2 }, { v: 7 }, { v: 4 }, { v: 6 }, { v: 8 }, { v: 5 }];
 
 /* ═══════════════════════════════════════════════════════════
    RESPONSIVE CSS — injected via <style> tag so media queries
    work properly. All selectors are prefixed with .trk- to
-   avoid clashing with the existing index.css.
+   avoid clashing with the existing index.css. Colors are
+   driven off CSS variables set on .trk-shell so the palette
+   only needs to change in one place.
    ═══════════════════════════════════════════════════════════ */
 const RESPONSIVE_CSS = `
+/* ── Tokens ────────────────────────────────────────────── */
+.trk-shell {
+  --bg: #03060f;
+  --surface: #0a0f1dcc;
+  --surface-solid: #0a0f1d;
+  --border-soft: #141b2c;
+  --border: #1c2436;
+  --text: #f8fafc;
+  --text-muted: #8792a8;
+  --accent: #6366f1;
+  --accent-2: #8b5cf6;
+}
+
 /* ── Base / Desktop ────────────────────────────────────── */
 .trk-shell {
   display: flex;
   min-height: 100vh;
-  background: #020617;
-  color: #f8fafc;
+  background: var(--bg);
+  background-image:
+    radial-gradient(circle at 12% -5%, rgba(99,102,241,0.16), transparent 40%),
+    radial-gradient(circle at 90% 10%, rgba(139,92,246,0.10), transparent 35%);
+  color: var(--text);
   font-family: 'Inter', system-ui, sans-serif;
 }
 
@@ -88,15 +106,16 @@ const RESPONSIVE_CSS = `
 .trk-top-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 12px 28px;
-  border-bottom: 1px solid #1e293b;
-  background: rgba(11,17,32,0.95);
-  backdrop-filter: blur(12px);
+  justify-content: center;
+  padding: 16px 28px;
+  border-bottom: 1px solid #141b2c;
+  background: linear-gradient(180deg, rgba(10,15,29,0.92), rgba(10,15,29,0.78));
+  backdrop-filter: blur(14px);
   position: sticky;
   top: 0;
   z-index: 40;
   gap: 16px;
+  box-shadow: 0 8px 24px -18px rgba(0,0,0,0.6);
 }
 
 .trk-search-box {
@@ -133,16 +152,20 @@ const RESPONSIVE_CSS = `
 
 /* Content */
 .trk-content {
-  padding: 24px 28px;
+  padding: 0px 28px 0px;
   flex: 1;
 }
 
-/* Tab nav */
+/* Tab nav — floating pill group */
 .trk-tab-nav {
   display: flex;
-  gap: 8px;
-  margin-bottom: 24px;
+  gap: 6px;
   flex-wrap: wrap;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 6px;
+  border-radius: 16px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.03), 0 10px 30px -20px rgba(0,0,0,0.7);
 }
 
 .trk-tab-label { display: inline; }
@@ -161,6 +184,51 @@ const RESPONSIVE_CSS = `
   grid-template-columns: 340px 1fr;
   gap: 24px;
   align-items: start;
+  margin-top: 15px;
+}
+
+/* Attractive polish for the panel cards that come from index.css —
+   scoped so it only affects panels rendered inside this page. */
+.trk-content .panel {
+  background: linear-gradient(180deg, #0b1120 0%, #0a0e1a 100%);
+  border: 1px solid #1b2334;
+  border-radius: 16px;
+  box-shadow: 0 20px 45px -30px rgba(0,0,0,0.85), inset 0 1px 0 rgba(255,255,255,0.02);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.trk-content .panel:hover {
+  border-color: #29324a;
+  box-shadow: 0 24px 55px -28px rgba(0,0,0,0.9), inset 0 1px 0 rgba(255,255,255,0.03);
+}
+.trk-content .panel-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  letter-spacing: 0.2px;
+}
+.trk-content .panel-title-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(99,102,241,0.25), rgba(139,92,246,0.2));
+  color: #c7d2fe;
+  font-size: 13px;
+}
+.trk-content .download-btn.active {
+  background: linear-gradient(135deg, #6366f1, #7c3aed);
+  box-shadow: 0 6px 18px -6px rgba(99,102,241,0.55);
+  border: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.trk-content .download-btn.active:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px -6px rgba(99,102,241,0.65);
+}
+.trk-content .download-btn.disabled {
+  opacity: 0.45;
 }
 
 /* Hamburger */
@@ -282,50 +350,50 @@ function App() {
     const { list: list5 } = useSelector((state) => state.table5);
     const [open, setOpen] = useState(false);
     const [activeTab, setActiveTab] = useState(1);
-    const [sidebarOpen, setSidebarOpen] = useState(false);
-    const [searchQuery, setSearchQuery] = useState("");
+    // const [sidebarOpen, setSidebarOpen] = useState(false);
+    // const [searchQuery, setSearchQuery] = useState("");
 
     // Close sidebar on route change or resize to desktop
-    const closeSidebar = useCallback(() => setSidebarOpen(false), []);
+    // const closeSidebar = useCallback(() => setSidebarOpen(false), []);
 
-    useEffect(() => {
-        const handleResize = () => {
-            if (window.innerWidth > 900) closeSidebar();
-        };
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, [closeSidebar]);
+    // useEffect(() => {
+    //     const handleResize = () => {
+    //         if (window.innerWidth > 900) closeSidebar();
+    //     };
+    //     window.addEventListener('resize', handleResize);
+    //     return () => window.removeEventListener('resize', handleResize);
+    // }, [closeSidebar]);
 
     // Get data for active tab
-    const activeList = activeTab === 1 ? list1 : activeTab === 2 ? list2 : activeTab === 3 ? list3 : list4;
+    const activeList = activeTab === 1 ? list1 : activeTab === 2 ? list2 : activeTab === 3 ? list3 : activeTab === 4 ? list4 : list5;
     const hasData = activeList && activeList.length > 0;
 
     // Compute summary stats for active tab
-    const stats = useMemo(() => {
-        if (!activeList || activeList.length === 0) {
-            return { totalIncome: 0, totalExpense: 0, netBalance: 0, totalTransactions: 0 };
-        }
-        const totalIncome = activeList.reduce((sum, item) => sum + (Number(item.income) || 0), 0);
-        const totalExpense = activeList.reduce((sum, item) => sum + (Number(item.outgoing) || 0), 0);
-        return {
-            totalIncome,
-            totalExpense,
-            netBalance: totalIncome - totalExpense,
-            totalTransactions: activeList.length,
-        };
-    }, [activeList]);
+    // const stats = useMemo(() => {
+    //     if (!activeList || activeList.length === 0) {
+    //         return { totalIncome: 0, totalExpense: 0, netBalance: 0, totalTransactions: 0 };
+    //     }
+    //     const totalIncome = activeList.reduce((sum, item) => sum + (Number(item.income) || 0), 0);
+    //     const totalExpense = activeList.reduce((sum, item) => sum + (Number(item.outgoing) || 0), 0);
+    //     return {
+    //         totalIncome,
+    //         totalExpense,
+    //         netBalance: totalIncome - totalExpense,
+    //         totalTransactions: activeList.length,
+    //     };
+    // }, [activeList]);
 
-    const projectedMargin = stats.totalIncome > 0
-        ? ((stats.netBalance / stats.totalIncome) * 100).toFixed(0)
-        : 0;
+    // const projectedMargin = stats.totalIncome > 0
+    //     ? ((stats.netBalance / stats.totalIncome) * 100).toFixed(0)
+    //     : 0;
 
-    const formatCurrency = (amount) =>
-        new Intl.NumberFormat("en-IN", {
-            style: "currency",
-            currency: "INR",
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-        }).format(amount);
+    // const formatCurrency = (amount) =>
+    //     new Intl.NumberFormat("en-IN", {
+    //         style: "currency",
+    //         currency: "INR",
+    //         minimumFractionDigits: 2,
+    //         maximumFractionDigits: 2,
+    //     }).format(amount);
 
     // Render form based on active tab
     const renderForm = () => {
@@ -346,37 +414,39 @@ function App() {
     };
 
     /* ── Reusable inline pieces ─────────────────────── */
-    const avatarStyle = {
-        width: '36px', height: '36px', borderRadius: '50%',
-        background: 'linear-gradient(135deg, #6366f1, #a855f7)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        fontSize: '13px', fontWeight: 700, color: '#fff', flexShrink: 0,
-    };
+    // const avatarStyle = {
+    //     width: '36px', height: '36px', borderRadius: '50%',
+    //     background: 'linear-gradient(135deg, #6366f1, #a855f7)',
+    //     display: 'flex', alignItems: 'center', justifyContent: 'center',
+    //     fontSize: '13px', fontWeight: 700, color: '#fff', flexShrink: 0,
+    // };
 
-    const cardStyle = {
-        background: '#0b1120', border: '1px solid #1e293b',
-        borderRadius: '12px', padding: '20px', position: 'relative',
-        overflow: 'hidden', display: 'flex', flexDirection: 'column',
-    };
+    // const cardStyle = {
+    //     background: '#0b1120', border: '1px solid #1e293b',
+    //     borderRadius: '12px', padding: '20px', position: 'relative',
+    //     overflow: 'hidden', display: 'flex', flexDirection: 'column',
+    // };
 
-    const sidebarLinkStyle = (isActive) => ({
-        display: 'flex', alignItems: 'center', gap: '12px',
-        padding: '10px 14px', borderRadius: '10px', fontSize: '14px',
-        fontWeight: isActive ? 600 : 400,
-        color: isActive ? '#f8fafc' : '#94a3b8',
-        background: isActive ? 'rgba(99,102,241,0.15)' : 'transparent',
-        textDecoration: 'none', marginBottom: '4px',
-        transition: 'all 0.2s', whiteSpace: 'nowrap', cursor: 'pointer',
-    });
+    // const sidebarLinkStyle = (isActive) => ({
+    //     display: 'flex', alignItems: 'center', gap: '12px',
+    //     padding: '10px 14px', borderRadius: '10px', fontSize: '14px',
+    //     fontWeight: isActive ? 600 : 400,
+    //     color: isActive ? '#f8fafc' : '#94a3b8',
+    //     background: isActive ? 'rgba(99,102,241,0.15)' : 'transparent',
+    //     textDecoration: 'none', marginBottom: '4px',
+    //     transition: 'all 0.2s', whiteSpace: 'nowrap', cursor: 'pointer',
+    // });
 
     const tabBtnStyle = (isActive) => ({
         display: 'flex', alignItems: 'center', gap: '8px',
-        padding: '10px 22px', borderRadius: '10px', border: 'none',
+        padding: '10px 22px', borderRadius: '11px', border: 'none',
         fontSize: '14px', fontWeight: isActive ? 600 : 400,
         color: isActive ? '#fff' : '#94a3b8',
-        background: isActive ? 'linear-gradient(135deg, #6366f1, #7c3aed)' : '#111827',
+        background: isActive
+            ? 'linear-gradient(135deg, #6366f1, #7c3aed)'
+            : 'transparent',
         cursor: 'pointer', transition: 'all 0.25s ease',
-        boxShadow: isActive ? '0 4px 16px rgba(99,102,241,0.3)' : 'none',
+        boxShadow: isActive ? '0 6px 18px -4px rgba(99,102,241,0.45)' : 'none',
         whiteSpace: 'nowrap',
     });
 
@@ -388,14 +458,14 @@ function App() {
             <div className="trk-shell">
 
                 {/* ═══ MOBILE OVERLAY ═════════════════════════════ */}
-                <div
+                {/* <div
                     className={`trk-overlay ${sidebarOpen ? 'trk-overlay-visible' : ''}`}
                     onClick={closeSidebar}
-                />
+                /> */}
 
                 {/* ═══ LEFT SIDEBAR ═══════════════════════════════ */}
-                <aside className={`trk-sidebar ${sidebarOpen ? 'trk-sidebar-open' : ''}`}>
-                    {/* Brand */}
+                {/* <aside className={`trk-sidebar ${sidebarOpen ? 'trk-sidebar-open' : ''}`}>
+                   
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '36px', whiteSpace: 'nowrap' }}>
                         <div style={{
                             width: '38px', height: '38px', minWidth: '38px', borderRadius: '10px',
@@ -410,7 +480,7 @@ function App() {
                         </div>
                     </div>
 
-                    {/* Nav links */}
+                    
                     <nav style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
                         {SIDEBAR_LINKS.map((link) => (
                             <Link key={link.label} to={link.to} style={sidebarLinkStyle(link.active)} onClick={closeSidebar}>
@@ -420,7 +490,7 @@ function App() {
                         ))}
                     </nav>
 
-                    {/* Bottom section */}
+                    
                     <div style={{ marginTop: 'auto', borderTop: '1px solid #1e293b', paddingTop: '16px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
                             <div style={{ width: '36px', height: '36px', minWidth: '36px', borderRadius: '8px', background: '#1e293b', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px' }}>🏗️</div>
@@ -438,47 +508,27 @@ function App() {
                             <span style={{ color: '#64748b', fontSize: '14px', cursor: 'pointer' }}>▾</span>
                         </div>
                     </div>
-                </aside>
+                </aside> */}
 
                 {/* ═══ MAIN CONTENT AREA ═════════════════════════ */}
                 <div className="trk-main-area">
 
                     {/* ── Top Header ─────────────────────────────── */}
                     <header className="trk-top-header">
-                        {/* Hamburger (mobile only) */}
-                        <button className="trk-hamburger" onClick={() => setSidebarOpen(true)} aria-label="Open menu">
-                            ☰
-                        </button>
-
-                        {/* Search */}
-                        <div className="trk-search-box">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                            <input
-                                type="text"
-                                placeholder="Search transactions..."
-                                className="trk-search-input"
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                            />
-                            <span className="trk-kbd" style={{ fontSize: '11px', color: '#475569', background: '#1e293b', padding: '2px 8px', borderRadius: '4px', whiteSpace: 'nowrap' }}>⌘K</span>
-                        </div>
-
-                        {/* Right side */}
-                        <div className="trk-user-area">
-                            {/* Notification */}
-                            {/* <div style={{ position: 'relative', cursor: 'pointer', fontSize: '18px', color: '#94a3b8' }}>
-                                🔔
-                                <div style={{ position: 'absolute', top: '-4px', right: '-4px', width: '16px', height: '16px', borderRadius: '50%', background: '#f43f5e', fontSize: '9px', fontWeight: 700, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>3</div>
-                            </div> */}
-                            {/* User profile */}
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
-                                <div style={avatarStyle}>S</div>
-                                <div className="trk-user-info">
-                                    <div style={{ fontSize: '13px', fontWeight: 600, color: '#f8fafc' }}>Suresh</div>
-                                    <div style={{ fontSize: '11px', color: '#64748b' }}>Admin</div>
-                                </div>
-                                <span className="trk-user-info" style={{ color: '#64748b', fontSize: '14px' }}>▾</span>
-                            </div>
+                        
+                         <div className="trk-tab-nav">
+                            {TABS.map((tab) => (
+                                <button
+                                    key={tab.id}
+                                    style={tabBtnStyle(activeTab === tab.id)}
+                                    onClick={() => setActiveTab(tab.id)}
+                                    onMouseEnter={(e) => { if (activeTab !== tab.id) e.currentTarget.style.background = '#1e293b'; }}
+                                    onMouseLeave={(e) => { if (activeTab !== tab.id) e.currentTarget.style.background = 'transparent'; }}
+                                >
+                                    <span>{tab.icon}</span>
+                                    <span className="trk-tab-label">{tab.label}</span>
+                                </button>
+                            ))}
                         </div>
                     </header>
 
@@ -486,25 +536,12 @@ function App() {
                     <div className="trk-content">
 
                         {/* Tab Navigation */}
-                        <div className="trk-tab-nav">
-                            {TABS.map((tab) => (
-                                <button
-                                    key={tab.id}
-                                    style={tabBtnStyle(activeTab === tab.id)}
-                                    onClick={() => setActiveTab(tab.id)}
-                                    onMouseEnter={(e) => { if (activeTab !== tab.id) e.currentTarget.style.background = '#1e293b'; }}
-                                    onMouseLeave={(e) => { if (activeTab !== tab.id) e.currentTarget.style.background = '#111827'; }}
-                                >
-                                    <span>{tab.icon}</span>
-                                    <span className="trk-tab-label">{tab.label}</span>
-                                </button>
-                            ))}
-                        </div>
+                       
 
                         {/* ── Summary Cards ───────────────────────── */}
-                        <div className="trk-cards-grid">
+                        {/* <div className="trk-cards-grid">
 
-                            {/* Total Income */}
+                           
                             <div style={cardStyle}>
                                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', zIndex: 1 }}>
                                     <div style={{ backgroundColor: 'rgba(16, 185, 129, 0.1)', color: '#10b981', padding: '10px', borderRadius: '10px', flexShrink: 0 }}>
@@ -526,7 +563,7 @@ function App() {
                                 </div>
                             </div>
 
-                            {/* Total Expense */}
+                           
                             <div style={cardStyle}>
                                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', zIndex: 1 }}>
                                     <div style={{ backgroundColor: 'rgba(244, 63, 94, 0.1)', color: '#f43f5e', padding: '10px', borderRadius: '10px', flexShrink: 0 }}>
@@ -547,7 +584,7 @@ function App() {
                                 </div>
                             </div>
 
-                            {/* Net Balance */}
+                           
                             <div style={cardStyle}>
                                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', zIndex: 1 }}>
                                     <div style={{ backgroundColor: 'rgba(99, 102, 241, 0.1)', color: '#6366f1', padding: '10px', borderRadius: '10px', flexShrink: 0 }}>
@@ -575,7 +612,7 @@ function App() {
                                 </div>
                             </div>
 
-                            {/* Total Transactions */}
+                            
                             <div style={cardStyle}>
                                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', zIndex: 1 }}>
                                     <div style={{ backgroundColor: 'rgba(168, 85, 247, 0.1)', color: '#a855f7', padding: '10px', borderRadius: '10px', flexShrink: 0 }}>
@@ -595,7 +632,7 @@ function App() {
                                     </ResponsiveContainer>
                                 </div>
                             </div>
-                        </div>
+                        </div> */}
 
                         {/* ── Main Grid: Form + Transaction History ── */}
                         <div className="trk-main-grid">
