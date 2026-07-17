@@ -167,7 +167,7 @@ export default function TransactionList3() {
     <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
 
       {/* ✅ ONLY CHANGE HERE */}
-      <div className="summary-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "12px" }}>
+      <div className="summary-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "12px" }}>
 
         <div className="stat-card stat-card-income">
           <p style={{ fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "#6ee7b7", marginBottom: "6px" }}>
@@ -198,6 +198,22 @@ export default function TransactionList3() {
           }}>
             {formatCurrency(netBalance)}
           </p>
+          {/* <p style={{ fontSize: "0.72rem", color: "#94a3b8", marginTop: "4px" }}>
+            {processedList.filter(t => !t.isHeading).length} Transactions
+          </p> */}
+        </div>
+        <div className="stat-card stat-card-transactions ">
+          <p style={{ fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "#67e8f9", marginBottom: "6px" }}>
+            transactions
+          </p>
+          <p style={{
+            fontSize: "1.15rem",
+            fontWeight: 800,
+            color: netBalance >= 0 ? "#e0f7fa" : "#fecdd3",
+          }}>
+            {processedList.filter(t => !t.isHeading).length}
+          </p>
+          
         </div>
 
       </div>

@@ -12,7 +12,7 @@ export default function Header() {
           <div className="logo-icon logo-icon-spin">₹</div>
 
           <div className="brand-text">
-            <h1 className="header-title">MoneyMint</h1>
+            <h1 className="header-title">Sri Maruthi Construction</h1>
             <p className="header-subtitle">Smart Expense Tracker</p>
           </div>
         </div>
