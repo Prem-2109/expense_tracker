@@ -6,17 +6,40 @@ const dotenv = require("dotenv");
 dotenv.config();
 
 const app = express();
-app.use(cors());
+
+// Allow requests from local dev and the deployed Vercel frontend
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:3000",
+  process.env.FRONTEND_URL, // set this in Vercel dashboard if needed
+].filter(Boolean);
+
+app.use(cors({
+  origin: function (origin, callback) {
+    // Allow requests with no origin (e.g., curl, Postman, same-origin)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin) || origin.endsWith(".vercel.app")) {
+      return callback(null, true);
+    }
+    callback(new Error("Not allowed by CORS"));
+  },
+  credentials: true,
+}));
+
 app.use(express.json());
 
 const PORT = process.env.PORT || 5000;
 
-// DB connection
-mongoose.connect(process.env.MONGO_URI || "mongodb://localhost:27017/expense_tracker")
-.then(() => console.log("MongoDB connected"))
-.catch(err => {
+// DB connection — cached for Vercel serverless (avoids reconnecting on every request)
+let isConnected = false;
+async function connectDB() {
+  if (isConnected) return;
+  await mongoose.connect(process.env.MONGO_URI || "mongodb://localhost:27017/expense_tracker");
+  isConnected = true;
+  console.log("MongoDB connected");
+}
+connectDB().catch(err => {
   console.error("MongoDB connection error:", err.message);
-  console.log("Please make sure MongoDB is running and MONGO_URI is set in .env file");
 });
 
 // Routes
@@ -38,6 +61,11 @@ app.use("/api/table4", table4Routes);
 const table5Routes = require("./routes/table5");
 app.use("/api/table5", table5Routes);
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+// Export app for Vercel serverless; only listen locally
+if (process.env.NODE_ENV !== "production") {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+}
+
+module.exports = app;
