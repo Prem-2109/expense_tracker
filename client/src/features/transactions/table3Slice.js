@@ -28,6 +28,16 @@ export const reorderTable3 = createAsyncThunk("table3/reorder", async (updates) 
   return updates;
 });
 
+export const verifyImportTable3 = createAsyncThunk("table3/verifyImport", async (data) => {
+  const res = await axios.post(`${API_URL}/table3/verify-import`, data);
+  return res.data;
+});
+
+export const importTable3 = createAsyncThunk("table3/import", async ({ data, skipDuplicates }) => {
+  const res = await axios.post(`${API_URL}/table3/import`, { transactions: data, skipDuplicates });
+  return res.data;
+});
+
 const table3Slice = createSlice({
   name: "table3",
   initialState: {
@@ -46,6 +56,9 @@ const table3Slice = createSlice({
       })
       .addCase(addTable3.fulfilled, (state, action) => {
         state.list.unshift(action.payload);
+      })
+      .addCase(importTable3.fulfilled, (state, action) => {
+        state.list = [...state.list, ...action.payload.inserted];
       })
       .addCase(deleteTable3.fulfilled, (state, action) => {
         state.list = state.list.filter(t => t._id !== action.payload);

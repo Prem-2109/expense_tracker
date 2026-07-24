@@ -10,6 +10,7 @@ import { fetchTransactions } from '../features/transactions/transactionSlice.js'
 import { fetchTable2 } from '../features/transactions/table2Slice.js';
 import { fetchTable3 } from '../features/transactions/table3Slice.js';
 import { fetchTable4 } from '../features/transactions/table4Slice.js';
+import { fetchTable5 } from '../features/transactions/table5Slice.js';
 
 const COLORS = ['#6366f1', '#f43f5e', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'];
 
@@ -20,6 +21,7 @@ export default function Dashboard() {
   const { list: list2, status: status2 } = useSelector(state => state.table2);
   const { list: list3, status: status3 } = useSelector(state => state.table3);
   const { list: list4, status: status4 } = useSelector(state => state.table4);
+  const { list: list5, status: status5 } = useSelector(state => state.table5);
 
   const fetchedRef = React.useRef(false);
 
@@ -30,8 +32,9 @@ export default function Dashboard() {
       if (list2.length === 0) dispatch(fetchTable2());
       if (list3.length === 0) dispatch(fetchTable3());
       if (list4.length === 0) dispatch(fetchTable4());
+      if (list5.length === 0) dispatch(fetchTable5());
     }
-  }, [dispatch, list1.length, list2.length, list3.length, list4.length]);
+  }, [dispatch, list1.length, list2.length, list3.length, list4.length, list5.length]);
 
   const aggregateData = useMemo(() => {
     const calculateTotals = (list, name) => {
@@ -49,8 +52,9 @@ export default function Dashboard() {
       calculateTotals(list1, 'Suresh To Durai'),
       calculateTotals(list2, 'Suresh To Swamy'),
       calculateTotals(list3, 'Suresh To Sunder'),
+      calculateTotals(list4, 'Suresh To Vijay'),
     ].filter(d => d.Income > 0 || d.Expense > 0);
-  }, [list1, list2, list3]);
+  }, [list1, list2, list3, list4]);
 
   const totalIncome = aggregateData.reduce((acc, curr) => acc + curr.Income, 0);
   const totalExpense = aggregateData.reduce((acc, curr) => acc + curr.Expense, 0);

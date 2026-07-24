@@ -12,6 +12,7 @@ import TransactionForm5 from "../components/TransactionForm5.jsx";
 import TransactionList5 from "../features/transactions/TransactionList5.jsx";
 import Footer from "../components/Footer.jsx";
 import ExportModal from "../components/ExportModal.jsx";
+import ImportModal from "../components/ImportModal.jsx";
 import { Link } from "react-router-dom";
 
 const TABS = [
@@ -29,6 +30,7 @@ function App() {
     const { list: list4 } = useSelector((state) => state.table4);
     const { list: list5 } = useSelector((state) => state.table5);
     const [open, setOpen] = useState(false);
+    const [importModalOpen, setImportModalOpen] = useState(false);
     const [activeTab, setActiveTab] = useState(1);
     // const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -88,7 +90,7 @@ function App() {
                     {/* Right – History */}
                     <section className="panel panel-list">
 
-                        {/* 🔥 Header with Download */}
+                        {/* 🔥 Header with Download & Import */}
                         <div style={{
                             display: "flex",
                             justifyContent: "space-between",
@@ -100,13 +102,24 @@ function App() {
                                 Transaction History
                             </h2>
 
-                            <button
-                                disabled={!hasData}
-                                onClick={() => setOpen(true)}
-                                className={`download-btn ${hasData ? "active" : "disabled"}`}
-                            >
-                                ⬇ Download
-                            </button>
+                            <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                                {activeTab === 5 && (
+                                    <button
+                                        onClick={() => setImportModalOpen(true)}
+                                        className="download-btn active"
+                                        style={{ background: "linear-gradient(135deg, #10b981, #059669)" }}
+                                    >
+                                        📥 Import
+                                    </button>
+                                )}
+                                <button
+                                    disabled={!hasData}
+                                    onClick={() => setOpen(true)}
+                                    className={`download-btn ${hasData ? "active" : "disabled"}`}
+                                >
+                                    ⬇ Download
+                                </button>
+                            </div>
                         </div>
 
                         {renderList()}
@@ -115,9 +128,12 @@ function App() {
                 </div>
             </main>
 
-            {/* Popup Modal */}
+            {/* Popup Modals */}
             {open && (
                 <ExportModal onClose={() => setOpen(false)} data={activeList} />
+            )}
+            {importModalOpen && (
+                <ImportModal onClose={() => setImportModalOpen(false)} />
             )}
 
             <Footer />

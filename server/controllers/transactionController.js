@@ -55,3 +55,134 @@ exports.reorderTransactions = async (req, res) => {
     res.status(400).json({ error: err.message });
   }
 };
+
+const mongoose = require("mongoose");
+
+/**
+ * Verify imported data against existing records to find duplicates.
+ * Match criteria: description (case-insensitive, trimmed) + income + outgoing
+ */
+exports.verifyImport = async (req, res) => {
+  try {
+    const transactions = req.body;
+    if (!Array.isArray(transactions) || transactions.length === 0) {
+      return res.status(400).json({ error: "No transactions provided for verification" });
+    }
+
+    // Build query conditions for each transaction (description + income + outgoing)
+    const orConditions = transactions.map((t) => ({
+      description: { $regex: new RegExp(`^${escapeRegex(String(t.description || "").trim())}$`, "i") },
+      income: Number(t.income) || 0,
+      outgoing: Number(t.outgoing) || 0,
+    }));
+
+    const existingMatches = await Transaction.find({ $or: orConditions });
+
+    // Build a Set of keys for quick lookup: "desc|income|outgoing"
+    const existingKeys = new Set(
+      existingMatches.map(
+        (e) =>
+          `${String(e.description).trim().toLowerCase()}|${e.income}|${e.outgoing}`
+      )
+    );
+
+    const duplicates = [];
+    const newRecords = [];
+
+    transactions.forEach((t) => {
+      const key = `${String(t.description || "").trim().toLowerCase()}|${Number(t.income) || 0}|${Number(t.outgoing) || 0}`;
+      if (existingKeys.has(key)) {
+        duplicates.push(t);
+      } else {
+        newRecords.push(t);
+      }
+    });
+
+    res.json({
+      duplicates,
+      newRecords,
+      duplicateCount: duplicates.length,
+      newCount: newRecords.length,
+      total: transactions.length,
+    });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
+/**
+ * Escape special regex characters in a string
+ */
+function escapeRegex(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+exports.importTransactions = async (req, res) => {
+  try {
+    const { transactions, skipDuplicates } = req.body;
+    if (!Array.isArray(transactions) || transactions.length === 0) {
+      return res.status(400).json({ error: "No transactions provided for import" });
+    }
+
+    let dataToInsert = transactions;
+
+    // If skipDuplicates is true, filter out existing records first
+    if (skipDuplicates !== false) {
+      const orConditions = transactions.map((t) => ({
+        description: { $regex: new RegExp(`^${escapeRegex(String(t.description || "").trim())}$`, "i") },
+        income: Number(t.income) || 0,
+        outgoing: Number(t.outgoing) || 0,
+      }));
+
+      const existingMatches = await Transaction.find({ $or: orConditions });
+      const existingKeys = new Set(
+        existingMatches.map(
+          (e) =>
+            `${String(e.description).trim().toLowerCase()}|${e.income}|${e.outgoing}`
+        )
+      );
+
+      dataToInsert = transactions.filter((t) => {
+        const key = `${String(t.description || "").trim().toLowerCase()}|${Number(t.income) || 0}|${Number(t.outgoing) || 0}`;
+        return !existingKeys.has(key);
+      });
+    }
+
+    if (dataToInsert.length === 0) {
+      return res.json({ inserted: [], skipped: transactions.length, message: "All records already exist (duplicates skipped)" });
+    }
+
+    const Counter = mongoose.models.Counter || mongoose.model("Counter");
+    let counter = await Counter.findById("transaction_sno");
+    let currentSeq = counter ? counter.seq : 0;
+
+    const docsToInsert = dataToInsert.map((t) => {
+      currentSeq++;
+      return {
+        sno: currentSeq,
+        description: t.description || "",
+        income: Number(t.income) || 0,
+        outgoing: Number(t.outgoing) || 0,
+      };
+    });
+
+    await Counter.findByIdAndUpdate(
+      "transaction_sno",
+      { seq: currentSeq },
+      { upsert: true, new: true }
+    );
+
+    const saved = await Transaction.insertMany(docsToInsert);
+    const skippedCount = transactions.length - dataToInsert.length;
+    res.status(201).json({
+      inserted: saved,
+      skipped: skippedCount,
+      message: skippedCount > 0
+        ? `Imported ${saved.length} records, skipped ${skippedCount} duplicates`
+        : `Successfully imported ${saved.length} records`,
+    });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+

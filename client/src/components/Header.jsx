@@ -1,8 +1,20 @@
 import React, { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { logout } from "../features/auth/authSlice";
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { user } = useSelector((state) => state.auth);
+
+  const handleLogout = () => {
+    setMobileMenuOpen(false);
+    dispatch(logout());
+    navigate("/login");
+  };
 
   return (
     <header className="app-header">
@@ -50,10 +62,28 @@ export default function Header() {
           </NavLink>
         </nav>
 
-        {/* Mobile Menu Button */}
+        {/* Desktop User Section */}
+        <div className="header-user-section">
+          {user && (
+            <span className="header-username">
+              👤 {user.username}
+            </span>
+          )}
+
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="header-logout-btn"
+          >
+            Logout
+          </button>
+        </div>
+
+        {/* Mobile Menu Toggle */}
         <button
+          type="button"
           className="mobile-menu-toggle"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          onClick={() => setMobileMenuOpen((prev) => !prev)}
           aria-label="Toggle menu"
         >
           <span className={`hamburger-bar ${mobileMenuOpen ? "open" : ""}`}></span>
@@ -93,6 +123,22 @@ export default function Header() {
         >
           📝 Quotation
         </NavLink>
+
+        {user && (
+          <div className="mobile-user-section">
+            <span className="mobile-username">
+              👤 {user.username}
+            </span>
+
+            <button
+              type="button"
+              className="mobile-logout-btn"
+              onClick={handleLogout}
+            >
+              Logout
+            </button>
+          </div>
+        )}
       </div>
     </header>
   );

@@ -7,6 +7,7 @@ import {
   reorderTable5,
   reorderLocal5,
 } from "./table5Slice.js";
+import ImportModal from "../../components/ImportModal.jsx";
 
 const formatCurrency = (amount) =>
   new Intl.NumberFormat("en-IN", {
@@ -19,6 +20,7 @@ export default function TransactionList5() {
   const dispatch = useDispatch();
   const { list } = useSelector((state) => state.table5);
 
+  const [showImportModal, setShowImportModal] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [editForm, setEditForm] = useState({ description: "", income: "", outgoing: "" });
   // Drag state
@@ -156,9 +158,32 @@ export default function TransactionList5() {
         <h3 style={{ fontSize: "1rem", fontWeight: 600, color: "#e2e8f0", marginBottom: "6px" }}>
           No transactions yet
         </h3>
-        <p style={{ fontSize: "0.8rem", color: "#575569" }}>
-          Add your first transaction using the form.
+        <p style={{ fontSize: "0.8rem", color: "#575569", marginBottom: "16px" }}>
+          Add your first transaction using the form or import from Excel.
         </p>
+        <button
+          onClick={() => setShowImportModal(true)}
+          style={{
+            padding: "8px 18px",
+            background: "linear-gradient(135deg, #6366f1, #4f46e5)",
+            border: "none",
+            borderRadius: "8px",
+            color: "#fff",
+            fontWeight: 600,
+            fontSize: "0.85rem",
+            cursor: "pointer",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "6px",
+            boxShadow: "0 4px 12px rgba(99,102,241,0.35)",
+          }}
+        >
+          📥 Import Excel Data
+        </button>
+
+        {showImportModal && (
+          <ImportModal onClose={() => setShowImportModal(false)} />
+        )}
       </div>
     );
   }
@@ -217,10 +242,32 @@ export default function TransactionList5() {
         </div>
 
       </div>
-      {/* Drag hint */}
-      <p style={{ fontSize: "0.72rem", color: "#575569", display: "flex", alignItems: "center", gap: "6px", margin: "0" }}>
-        <span>⠿</span> Drag the handle on the left to reorder rows
-      </p>
+      {/* Drag hint and Import Excel Button */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <p style={{ fontSize: "0.72rem", color: "#575569", display: "flex", alignItems: "center", gap: "6px", margin: "0" }}>
+          <span>⠿</span> Drag the handle on the left to reorder rows
+        </p>
+        <button
+          onClick={() => setShowImportModal(true)}
+          style={{
+            padding: "6px 14px",
+            background: "linear-gradient(135deg, #6366f1, #4f46e5)",
+            border: "none",
+            borderRadius: "8px",
+            color: "#fff",
+            fontWeight: 600,
+            fontSize: "0.82rem",
+            cursor: "pointer",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "6px",
+            boxShadow: "0 4px 12px rgba(99,102,241,0.35)",
+            transition: "transform 0.15s ease",
+          }}
+        >
+          📥 Import Excel
+        </button>
+      </div>
 
       {/* TABLE */}
       <div style={{ overflowX: "auto", borderRadius: "15px", border: "1px solid rgba(255,255,255,0.06)" }}>
@@ -405,6 +452,9 @@ export default function TransactionList5() {
         </table>
       </div>
 
+      {showImportModal && (
+        <ImportModal onClose={() => setShowImportModal(false)} />
+      )}
     </div>
   );
 }

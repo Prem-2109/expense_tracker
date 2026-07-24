@@ -4,9 +4,11 @@ import table2Reducer from "../features/transactions/table2Slice.js";
 import table3Reducer from "../features/transactions/table3Slice.js";
 import table4Reducer from "../features/transactions/table4Slice.js";
 import table5Reducer from "../features/transactions/table5Slice.js";
+import authReducer from "../features/auth/authSlice.js";
 
 export const store = configureStore({
   reducer: {
+    auth: authReducer,
     transactions: transactionReducer,
     table2: table2Reducer,
     table3: table3Reducer,

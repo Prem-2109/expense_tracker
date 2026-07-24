@@ -20,6 +20,9 @@ mongoose.connect(process.env.MONGO_URI || "mongodb://localhost:27017/expense_tra
 });
 
 // Routes
+const authRoutes = require("./routes/auth");
+app.use("/api/auth", authRoutes);
+
 const transactionRoutes = require("./routes/transactions");
 app.use("/api/transactions", transactionRoutes);
 

@@ -29,6 +29,16 @@ export const reorderTransactions = createAsyncThunk("transactions/reorder", asyn
   return updates;
 });
 
+export const verifyImport = createAsyncThunk("transactions/verifyImport", async (data) => {
+  const res = await axios.post(`${API_URL}/transactions/verify-import`, data);
+  return res.data;
+});
+
+export const importTransactions = createAsyncThunk("transactions/import", async ({ data, skipDuplicates }) => {
+  const res = await axios.post(`${API_URL}/transactions/import`, { transactions: data, skipDuplicates });
+  return res.data;
+});
+
 const transactionSlice = createSlice({
   name: "transactions",
   initialState: {
@@ -49,6 +59,9 @@ const transactionSlice = createSlice({
       })
       .addCase(addTransaction.fulfilled, (state, action) => {
         state.list.unshift(action.payload);
+      })
+      .addCase(importTransactions.fulfilled, (state, action) => {
+        state.list = [...state.list, ...action.payload.inserted];
       })
       .addCase(deleteTransaction.fulfilled, (state, action) => {
         state.list = state.list.filter(t => t._id !== action.payload);

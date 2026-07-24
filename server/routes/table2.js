@@ -5,11 +5,15 @@ const {
   addTransaction,
   updateTransaction,
   deleteTransaction,
-  reorderTransactions
+  reorderTransactions,
+  importTransactions,
+  verifyImport
 } = require("../controllers/table2Controller");
 
 router.get("/", getTransactions);
 router.post("/", addTransaction);
+router.post("/import", importTransactions);
+router.post("/verify-import", verifyImport);
 router.post("/reorder", reorderTransactions);
 router.put("/:id", updateTransaction);
 router.delete("/:id", deleteTransaction);
